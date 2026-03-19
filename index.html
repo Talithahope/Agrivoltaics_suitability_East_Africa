@@ -10,8 +10,83 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'DM Sans', sans-serif; background: #080c14; color: #e0e4ec; height: 100vh; overflow: hidden; }
-  #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; background: #080c14; }
+
+  :root {
+    --bg: #080c14;
+    --panel-bg: rgba(10,14,23,0.92);
+    --panel-border: rgba(255,255,255,0.07);
+    --title-bg: rgba(10,14,23,0.88);
+    --title-border: rgba(255,255,255,0.08);
+    --text-primary: #f0f2f5;
+    --text-body: #e0e4ec;
+    --text-muted: #9ca3af;
+    --text-faint: #6b7280;
+    --text-dim: #4b5563;
+    --btn-bg: rgba(255,255,255,0.04);
+    --btn-border: rgba(255,255,255,0.08);
+    --btn-hover: rgba(255,255,255,0.08);
+    --btn-text: #9ca3af;
+    --btn-hover-text: #d1d5db;
+    --accent: #4ade80;
+    --accent-bg: rgba(74,222,128,0.1);
+    --accent-border: rgba(74,222,128,0.3);
+    --slider-track: rgba(255,255,255,0.1);
+    --slider-thumb: #e0e4ec;
+    --city-text: #d1d5db;
+    --city-dot-bg: #e0e4ec;
+    --zoom-bg: rgba(10,14,23,0.88);
+    --zoom-text: #9ca3af;
+    --zoom-hover-bg: rgba(10,14,23,0.95);
+    --zoom-hover-text: #e0e4ec;
+    --attr-bg: rgba(10,14,23,0.7);
+    --attr-text: #4b5563;
+    --shadow: rgba(0,0,0,0.4);
+    --city-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.5);
+    --backdrop: blur(20px);
+    --modal-bg: rgba(10,14,23,0.95);
+    --modal-text: #c9cdd5;
+    --base-tile-opacity: 0.6;
+  }
+
+  [data-theme="light"] {
+    --bg: #e8ecf0;
+    --panel-bg: rgba(255,255,255,0.92);
+    --panel-border: rgba(0,0,0,0.1);
+    --title-bg: rgba(255,255,255,0.9);
+    --title-border: rgba(0,0,0,0.08);
+    --text-primary: #1a1a2e;
+    --text-body: #2d2d44;
+    --text-muted: #5a5a72;
+    --text-faint: #7a7a8e;
+    --text-dim: #9a9aaa;
+    --btn-bg: rgba(0,0,0,0.04);
+    --btn-border: rgba(0,0,0,0.1);
+    --btn-hover: rgba(0,0,0,0.08);
+    --btn-text: #5a5a72;
+    --btn-hover-text: #2d2d44;
+    --accent: #16a34a;
+    --accent-bg: rgba(22,163,74,0.1);
+    --accent-border: rgba(22,163,74,0.35);
+    --slider-track: rgba(0,0,0,0.12);
+    --slider-thumb: #3d3d56;
+    --city-text: #2d2d44;
+    --city-dot-bg: #3d3d56;
+    --zoom-bg: rgba(255,255,255,0.9);
+    --zoom-text: #5a5a72;
+    --zoom-hover-bg: rgba(255,255,255,0.95);
+    --zoom-hover-text: #2d2d44;
+    --attr-bg: rgba(255,255,255,0.7);
+    --attr-text: #8a8a9e;
+    --shadow: rgba(0,0,0,0.12);
+    --city-shadow: 0 1px 3px rgba(255,255,255,0.6), 0 0 6px rgba(255,255,255,0.3);
+    --backdrop: blur(20px);
+    --modal-bg: rgba(255,255,255,0.97);
+    --modal-text: #3d3d56;
+    --base-tile-opacity: 0.45;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-body); height: 100vh; overflow: hidden; transition: background 0.4s ease; }
+  #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; background: var(--bg); }
 
   .leaflet-image-layer {
     image-rendering: pixelated !important;
@@ -22,68 +97,111 @@
 
   .title-bar {
     position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 1000;
-    background: rgba(10,14,23,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 24px;
+    background: var(--title-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
+    border: 1px solid var(--title-border); border-radius: 12px; padding: 10px 24px;
     text-align: center; pointer-events: none; white-space: nowrap;
+    transition: background 0.3s, border-color 0.3s;
   }
-  .title-bar h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.02em; color: #f0f2f5; }
-  .title-bar p { font-size: 11px; color: #8b92a0; margin-top: 2px; font-weight: 300; }
+  .title-bar h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.02em; color: var(--text-primary); }
+  .title-bar p { font-size: 11px; color: var(--text-faint); margin-top: 2px; font-weight: 300; }
 
   .control-panel {
     position: absolute; top: 90px; right: 16px; z-index: 1000;
-    background: rgba(10,14,23,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px; width: 260px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4); max-height: calc(100vh - 120px); overflow-y: auto;
+    background: var(--panel-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
+    border: 1px solid var(--panel-border); border-radius: 14px; padding: 20px; width: 260px;
+    box-shadow: 0 8px 32px var(--shadow); max-height: calc(100vh - 120px); overflow-y: auto;
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
   }
   .panel-section { margin-bottom: 16px; }
   .panel-section:last-child { margin-bottom: 0; }
-  .panel-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; margin-bottom: 8px; }
+  .panel-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint); margin-bottom: 8px; }
 
   .layer-btn {
     display: block; width: 100%; padding: 8px 12px; margin-bottom: 6px;
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px; color: #9ca3af; font-family: 'DM Sans', sans-serif;
+    background: var(--btn-bg); border: 1px solid var(--btn-border);
+    border-radius: 8px; color: var(--btn-text); font-family: 'DM Sans', sans-serif;
     font-size: 12px; font-weight: 400; cursor: pointer; transition: all 0.2s ease; text-align: left;
   }
-  .layer-btn:hover { background: rgba(255,255,255,0.08); color: #d1d5db; }
-  .layer-btn.active { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); color: #4ade80; font-weight: 500; }
+  .layer-btn:hover { background: var(--btn-hover); color: var(--btn-hover-text); }
+  .layer-btn.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); font-weight: 500; }
   .layer-btn .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #374151; margin-right: 8px; transition: background 0.2s ease; vertical-align: middle; }
-  .layer-btn.active .dot { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.4); }
+  .layer-btn.active .dot { background: var(--accent); box-shadow: 0 0 6px rgba(74,222,128,0.4); }
+
+  .icon-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; padding: 8px 12px;
+    background: var(--btn-bg); border: 1px solid var(--btn-border);
+    border-radius: 8px; color: var(--btn-text); font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 400; cursor: pointer; transition: all 0.2s ease;
+  }
+  .icon-btn:hover { background: var(--btn-hover); color: var(--btn-hover-text); }
+  .icon-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
   .slider-row { display: flex; align-items: center; gap: 10px; }
-  .slider-row input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; }
-  .slider-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #e0e4ec; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
-  .slider-value { font-size: 11px; color: #9ca3af; min-width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
+  .slider-row input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: var(--slider-track); border-radius: 2px; outline: none; }
+  .slider-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--slider-thumb); cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .slider-value { font-size: 11px; color: var(--text-muted); min-width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
 
   .legend-bar { display: flex; height: 14px; border-radius: 4px; overflow: hidden; margin-bottom: 4px; }
   .legend-bar div { flex: 1; }
-  .legend-labels { display: flex; justify-content: space-between; font-size: 9px; color: #6b7280; }
+  .legend-labels { display: flex; justify-content: space-between; font-size: 9px; color: var(--text-faint); }
 
-  .drop-zone {
-    border: 1.5px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px;
-    text-align: center; cursor: pointer; transition: all 0.25s ease;
-  }
-  .drop-zone:hover, .drop-zone.dragover { border-color: rgba(74,222,128,0.5); background: rgba(74,222,128,0.04); }
-  .drop-zone-icon { font-size: 20px; margin-bottom: 4px; }
-  .drop-zone-text { font-size: 11px; color: #6b7280; line-height: 1.5; }
-  .drop-zone-text strong { color: #9ca3af; font-weight: 500; }
-
-  .loading { display: none; text-align: center; padding: 8px; font-size: 11px; color: #4ade80; }
+  .loading { display: none; text-align: center; padding: 8px; font-size: 11px; color: var(--accent); }
   .loading.visible { display: block; }
   .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(74,222,128,0.2); border-top-color: #4ade80; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 6px; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .leaflet-control-zoom { border: none !important; }
-  .leaflet-control-zoom a { background: rgba(10,14,23,0.88) !important; color: #9ca3af !important; border: 1px solid rgba(255,255,255,0.08) !important; backdrop-filter: blur(12px); }
-  .leaflet-control-zoom a:hover { background: rgba(10,14,23,0.95) !important; color: #e0e4ec !important; }
-  .leaflet-control-attribution { background: rgba(10,14,23,0.7) !important; color: #4b5563 !important; font-size: 9px !important; }
-  .leaflet-control-attribution a { color: #6b7280 !important; }
+  .leaflet-control-zoom a { background: var(--zoom-bg) !important; color: var(--zoom-text) !important; border: 1px solid var(--panel-border) !important; backdrop-filter: blur(12px); }
+  .leaflet-control-zoom a:hover { background: var(--zoom-hover-bg) !important; color: var(--zoom-hover-text) !important; }
+  .leaflet-control-attribution { background: var(--attr-bg) !important; color: var(--attr-text) !important; font-size: 9px !important; }
+  .leaflet-control-attribution a { color: var(--text-faint) !important; }
 
-  .city-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; color: #d1d5db; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.5); white-space: nowrap; }
-  .city-dot { width: 5px; height: 5px; background: #e0e4ec; border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); box-shadow: 0 0 4px rgba(255,255,255,0.2); }
+  .city-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; color: var(--city-text); text-shadow: var(--city-shadow); white-space: nowrap; }
+  .city-dot { width: 5px; height: 5px; background: var(--city-dot-bg); border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); box-shadow: 0 0 4px rgba(255,255,255,0.2); }
   .site-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 500; color: #fbbf24; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
 
-  .proj-note { font-size: 9px; color: #4b5563; margin-top: 8px; line-height: 1.4; font-style: italic; }
+  .proj-note { font-size: 9px; color: var(--text-dim); margin-top: 8px; line-height: 1.4; font-style: italic; }
+
+  /* Info modal */
+  .modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal-box {
+    background: var(--modal-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
+    border: 1px solid var(--panel-border); border-radius: 16px; padding: 28px;
+    max-width: 520px; width: 90%; max-height: 80vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4); color: var(--modal-text);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .modal-box h2 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; }
+  .modal-box h3 { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 16px; margin-bottom: 6px; }
+  .modal-box p { font-size: 12.5px; line-height: 1.65; margin-bottom: 8px; }
+  .modal-box .close-btn {
+    display: block; margin: 18px auto 0; padding: 8px 28px;
+    background: var(--accent-bg); border: 1px solid var(--accent-border);
+    border-radius: 8px; color: var(--accent); font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  }
+  .modal-box .close-btn:hover { background: var(--accent); color: #fff; }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: absolute; top: 16px; left: 16px; z-index: 1000;
+    background: var(--title-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
+    border: 1px solid var(--title-border); border-radius: 10px;
+    display: flex; overflow: hidden; transition: background 0.3s, border-color 0.3s;
+  }
+  .theme-toggle button {
+    background: none; border: none; padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+  }
+  .theme-toggle button.active { color: var(--text-primary); background: var(--btn-hover); font-weight: 500; }
+  .theme-toggle button:hover:not(.active) { color: var(--btn-hover-text); }
+  .theme-toggle svg { width: 13px; height: 13px; }
 </style>
 </head>
 <body>
@@ -92,6 +210,18 @@
 <div class="title-bar">
   <h1>Agrivoltaic Biophysical Suitability in East Africa</h1>
   <p>Multi-criteria spatial analysis</p>
+</div>
+
+<!-- Theme toggle -->
+<div class="theme-toggle">
+  <button id="theme-dark" class="active" onclick="setTheme('dark')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+    Dark
+  </button>
+  <button id="theme-light" onclick="setTheme('light')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    Light
+  </button>
 </div>
 
 <div class="control-panel">
@@ -111,34 +241,89 @@
   <div class="panel-section" id="legend-suit">
     <div class="panel-label">Suitability Score</div>
     <div class="legend-bar" id="legend-bar"></div>
-    <div class="legend-labels"><span>4 — Marginal</span><span>9 — Highest</span></div>
+    <div class="legend-labels"><span>4 — Low</span><span>9 — High</span></div>
     <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
       <div style="width:14px;height:14px;border-radius:3px;background:#E1E1E1;opacity:0.5;border:1px solid rgba(255,255,255,0.1);"></div>
-      <span style="font-size:9px;color:#6b7280;">0 — Unsuitable</span>
+      <span style="font-size:9px;color:var(--text-faint);">0 — Unsuitable</span>
       <div style="width:14px;height:14px;border-radius:3px;background:transparent;border:1px solid rgba(255,255,255,0.1);margin-left:8px;"></div>
-      <span style="font-size:9px;color:#6b7280;">Excluded</span>
+      <span style="font-size:9px;color:var(--text-faint);">Excluded</span>
     </div>
   </div>
   <div class="panel-section" id="legend-diff" style="display:none;">
     <div class="panel-label">Difference (CV − MP)</div>
     <div class="legend-bar" id="legend-bar-diff"></div>
     <div class="legend-labels"><span>−5 — MP higher</span><span>+5 — CV higher</span></div>
-    <div style="margin-top:4px;text-align:center;font-size:9px;color:#6b7280;">0 = No difference</div>
+    <div style="margin-top:4px;text-align:center;font-size:9px;color:var(--text-faint);">0 = No difference</div>
   </div>
   <div class="panel-section">
-    <div class="panel-label">Replace Layer (GeoTIFF)</div>
-    <div id="file-list"></div>
-    <div class="drop-zone" id="drop-zone">
-      <div class="drop-zone-icon">📁</div>
-      <div class="drop-zone-text"><strong>Drop GeoTIFF here</strong><br>or click to browse</div>
-      <input type="file" id="file-input" accept=".tif,.tiff,.geotiff" multiple style="display:none">
-    </div>
+    <button class="icon-btn" onclick="showInfo()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      What am I looking at?
+    </button>
+  </div>
+  <div class="panel-section">
     <div class="loading" id="loading"><span class="spinner"></span>Processing raster...</div>
     <div class="proj-note">Analysis conducted in Africa Albers Equal Area Conic (ESRI:102022). Web display reprojected to WGS84 for interactive viewing.</div>
   </div>
 </div>
 
+<!-- Info modal -->
+<div class="modal-overlay" id="info-modal" onclick="if(event.target===this)closeInfo()">
+  <div class="modal-box">
+    <h2>What is this map?</h2>
+    <p>This interactive map shows the results of a <strong>multi-criteria spatial analysis</strong> assessing where agrivoltaic systems — the co-location of solar panels and agriculture — are biophysically suitable across East Africa.</p>
+
+    <h3>Scenarios</h3>
+    <p><strong>Climate Vulnerable</strong> prioritises areas where farming communities face the greatest climate risk, weighting factors like drought frequency, heat stress, and livelihood vulnerability more heavily.</p>
+    <p><strong>Maximum Productivity</strong> prioritises areas where agrivoltaic systems would generate the most combined energy and agricultural output, weighting solar irradiance and crop productivity more heavily.</p>
+    <p><strong>Difference (CV − MP)</strong> highlights where the two scenarios diverge. Positive values (purple) mean an area scores higher under the climate-vulnerable weighting; negative values (orange) mean it scores higher under the maximum-productivity weighting.</p>
+
+    <h3>Suitability scores</h3>
+    <p>Scores range from 4 (low suitability) to 9 (high suitability). Areas scoring 0 were classified as unsuitable, and areas left transparent were excluded from the analysis entirely (e.g. water bodies, protected areas, steep terrain).</p>
+
+    <h3>Trial sites</h3>
+    <p>The orange triangles mark real-world agrivoltaic trial sites in Kenya (Isinya) and Tanzania (Morogoro) that informed and validated the analysis.</p>
+
+    <button class="close-btn" onclick="closeInfo()">Got it</button>
+  </div>
+</div>
+
 <script>
+// Theme
+let currentTheme = 'dark';
+let baseTileLayer, labelTileLayer;
+
+function setTheme(theme) {
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-dark').classList.toggle('active', theme === 'dark');
+  document.getElementById('theme-light').classList.toggle('active', theme === 'light');
+
+  // Swap tile layers
+  if (baseTileLayer) map.removeLayer(baseTileLayer);
+  if (labelTileLayer) map.removeLayer(labelTileLayer);
+
+  if (theme === 'light') {
+    baseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd', maxZoom: 19, pane: 'landPane', opacity: 0.45
+    }).addTo(map);
+    labelTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd', maxZoom: 19, pane: 'labelsPane'
+    }).addTo(map);
+  } else {
+    baseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd', maxZoom: 19, pane: 'landPane', opacity: 0.6
+    }).addTo(map);
+    labelTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd', maxZoom: 19, pane: 'labelsPane'
+    }).addTo(map);
+  }
+}
+
+// Info modal
+function showInfo() { document.getElementById('info-modal').classList.add('visible'); }
+function closeInfo() { document.getElementById('info-modal').classList.remove('visible'); }
+
 // Exact colors from paper
 const COLORS_HEX = {
   4: '#D6589E', 5: '#F5C4E1', 6: '#EBF6DB',
@@ -173,13 +358,11 @@ map.getPane('labelsPane').style.zIndex = 500;
 map.createPane('cityPane');
 map.getPane('cityPane').style.zIndex = 550;
 
-// Dark base
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+// Initial tile layers (dark)
+baseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
   subdomains: 'abcd', maxZoom: 19, pane: 'landPane', opacity: 0.6
 }).addTo(map);
-
-// Background labels
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+labelTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
   subdomains: 'abcd', maxZoom: 19, pane: 'labelsPane'
 }).addTo(map);
 
@@ -238,7 +421,7 @@ const diffColMap = {
   '-3': hexToRgba('#E08214',220),
   '-2': hexToRgba('#FDB863',220),
   '-1': hexToRgba('#FEE0B6',220),
-   '0': hexToRgba('#F7F7F7',0),
+   '0': hexToRgba('#F7F7F7',180),
    '1': hexToRgba('#D8DAEB',220),
    '2': hexToRgba('#B2ABD2',220),
    '3': hexToRgba('#8073AC',220),
@@ -246,12 +429,14 @@ const diffColMap = {
    '5': hexToRgba('#2D004B',220)
 };
 
-// Raster layers
+// Raster layers and raw data storage
 let layers = { cv: null, mp: null, diff: null };
+let rasterData = { cv: null, mp: null, diff: null };
+let rasterMeta = { cv: null, mp: null, diff: null };
 let activeLayer = 'cv';
 let currentOpacity = 0.75;
 
-// Load GeoTIFF from URL
+// Load GeoTIFF and store raw data
 async function loadGeoTIFFFromURL(url, layerId) {
   const loading = document.getElementById('loading');
   loading.classList.add('visible');
@@ -274,35 +459,113 @@ async function loadGeoTIFFFromURL(url, layerId) {
       pixelW = (bbox[2]-bbox[0])/width; pixelH = -(bbox[3]-bbox[1])/height;
     }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = width; canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    const imgData = ctx.createImageData(width, height);
-    const useMap = (layerId === 'diff') ? diffColMap : colMap;
-    for (let i = 0; i < data.length; i++) {
-      const val = data[i], px = i * 4;
-      const c = useMap[String(Math.round(val))];
-      if (c) {
-        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
-        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
-      }
-    }
-    ctx.putImageData(imgData, 0, 0);
-    const south = originY + pixelH * height, north = originY;
-    const west = originX, east = originX + pixelW * width;
-    const bounds = L.latLngBounds(L.latLng(south, west), L.latLng(north, east));
+    // Store raw data and metadata
+    rasterData[layerId] = data;
+    rasterMeta[layerId] = { width, height, originX, originY, pixelW, pixelH };
 
-    const overlay = L.imageOverlay(canvas.toDataURL(), bounds, {
-      opacity: layerId === activeLayer ? currentOpacity : 0,
-      interactive: false, pane: 'rasterPane'
-    });
-    overlay.addTo(map);
-    layers[layerId] = overlay;
+    // For the diff layer, we may need to wait for CV and MP to load first
+    if (layerId === 'diff') {
+      renderDiffWhenReady();
+    } else {
+      renderSuitabilityLayer(layerId);
+    }
+
+    // If both CV and MP are now loaded, re-render diff if it was loaded
+    if (layerId === 'cv' || layerId === 'mp') {
+      renderDiffWhenReady();
+    }
   } catch (err) {
     console.error('Error loading ' + url, err);
   } finally {
     loading.classList.remove('visible');
   }
+}
+
+function renderSuitabilityLayer(layerId) {
+  const data = rasterData[layerId];
+  const meta = rasterMeta[layerId];
+  if (!data || !meta) return;
+
+  const { width, height, originX, originY, pixelW, pixelH } = meta;
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.createImageData(width, height);
+
+  for (let i = 0; i < data.length; i++) {
+    const val = data[i], px = i * 4;
+    const c = colMap[String(Math.round(val))];
+    if (c) {
+      imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
+      imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
+    }
+  }
+  ctx.putImageData(imgData, 0, 0);
+
+  const south = originY + pixelH * height, north = originY;
+  const west = originX, east = originX + pixelW * width;
+  const bounds = L.latLngBounds(L.latLng(south, west), L.latLng(north, east));
+
+  if (layers[layerId]) map.removeLayer(layers[layerId]);
+  const overlay = L.imageOverlay(canvas.toDataURL(), bounds, {
+    opacity: layerId === activeLayer ? currentOpacity : 0,
+    interactive: false, pane: 'rasterPane'
+  });
+  overlay.addTo(map);
+  layers[layerId] = overlay;
+}
+
+function renderDiffWhenReady() {
+  // Only render diff if we have all three datasets
+  if (!rasterData.diff || !rasterData.cv || !rasterData.mp) return;
+  if (!rasterMeta.diff) return;
+
+  const diffData = rasterData.diff;
+  const cvData = rasterData.cv;
+  const mpData = rasterData.mp;
+  const meta = rasterMeta.diff;
+  const { width, height, originX, originY, pixelW, pixelH } = meta;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.createImageData(width, height);
+
+  for (let i = 0; i < diffData.length; i++) {
+    const diffVal = Math.round(diffData[i]);
+    const px = i * 4;
+
+    if (diffVal === 0) {
+      // Only show 0-difference where at least one scenario was suitable (non-zero)
+      const cvVal = cvData[i] ? Math.round(cvData[i]) : 0;
+      const mpVal = mpData[i] ? Math.round(mpData[i]) : 0;
+      if (cvVal > 0 || mpVal > 0) {
+        const c = diffColMap['0'];
+        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
+        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
+      }
+      // Otherwise leave transparent
+    } else {
+      const c = diffColMap[String(diffVal)];
+      if (c) {
+        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
+        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
+      }
+    }
+  }
+  ctx.putImageData(imgData, 0, 0);
+
+  const south = originY + pixelH * height, north = originY;
+  const west = originX, east = originX + pixelW * width;
+  const bounds = L.latLngBounds(L.latLng(south, west), L.latLng(north, east));
+
+  if (layers.diff) map.removeLayer(layers.diff);
+  const overlay = L.imageOverlay(canvas.toDataURL(), bounds, {
+    opacity: activeLayer === 'diff' ? currentOpacity : 0,
+    interactive: false, pane: 'rasterPane'
+  });
+  overlay.addTo(map);
+  layers.diff = overlay;
 }
 
 // Load all layers on startup
@@ -326,87 +589,6 @@ function setOpacity(val) {
   currentOpacity = val / 100;
   document.getElementById('opacity-val').textContent = val + '%';
   if (layers[activeLayer]) layers[activeLayer].setOpacity(currentOpacity);
-}
-
-async function loadGeoTIFF(file, layerId) {
-  const loading = document.getElementById('loading');
-  loading.classList.add('visible');
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
-    const image = await tiff.getImage();
-    const rasters = await image.readRasters();
-    const data = rasters[0];
-    const width = image.getWidth(), height = image.getHeight();
-    const bbox = image.getBoundingBox();
-    const fileDir = image.getFileDirectory();
-    let originX, originY, pixelW, pixelH;
-    if (fileDir.ModelTiepoint && fileDir.ModelPixelScale) {
-      originX = fileDir.ModelTiepoint[3]; originY = fileDir.ModelTiepoint[4];
-      pixelW = fileDir.ModelPixelScale[0]; pixelH = -fileDir.ModelPixelScale[1];
-    } else { originX = bbox[0]; originY = bbox[3]; pixelW = (bbox[2]-bbox[0])/width; pixelH = -(bbox[3]-bbox[1])/height; }
-
-    const canvas = document.createElement('canvas');
-    canvas.width = width; canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    const imgData = ctx.createImageData(width, height);
-    const useMap = (layerId === 'diff') ? diffColMap : colMap;
-    for (let i = 0; i < data.length; i++) {
-      const val = data[i], px = i * 4;
-      const c = useMap[String(Math.round(val))];
-      if (c) { imgData.data[px]=c[0]; imgData.data[px+1]=c[1]; imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3]; }
-    }
-    ctx.putImageData(imgData, 0, 0);
-    const south = originY + pixelH * height, north = originY, west = originX, east = originX + pixelW * width;
-    const bounds = L.latLngBounds(L.latLng(south, west), L.latLng(north, east));
-    if (layers[layerId]) map.removeLayer(layers[layerId]);
-    const overlay = L.imageOverlay(canvas.toDataURL(), bounds, {
-      opacity: layerId === activeLayer ? currentOpacity : 0, interactive: false, pane: 'rasterPane'
-    });
-    overlay.addTo(map); layers[layerId] = overlay;
-    if (layerId === activeLayer) map.fitBounds(bounds, { padding: [30,30] });
-    addFileTag(file.name, layerId);
-  } catch (err) {
-    console.error(err);
-    alert('Error loading GeoTIFF: ' + err.message + '\n\nEnsure the file is in EPSG:4326.');
-  } finally { loading.classList.remove('visible'); }
-}
-
-function addFileTag(name, layerId) {
-  const list = document.getElementById('file-list');
-  const existing = document.getElementById('tag-' + layerId);
-  if (existing) existing.remove();
-  const tag = document.createElement('div'); tag.className = 'file-tag'; tag.id = 'tag-' + layerId;
-  tag.innerHTML = `<span class="name" title="${name}">${layerId==='cv'?'🌡️':layerId==='mp'?'⚡':'Δ'} ${name}</span><span class="remove" onclick="removeLayer('${layerId}')">&times;</span>`;
-  list.appendChild(tag);
-}
-function removeLayer(layerId) {
-  if (layers[layerId]) { map.removeLayer(layers[layerId]); layers[layerId] = null; }
-  const tag = document.getElementById('tag-' + layerId); if (tag) tag.remove();
-}
-
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-dropZone.addEventListener('click', () => fileInput.click());
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
-fileInput.addEventListener('change', e => handleFiles(e.target.files));
-
-function handleFiles(files) {
-  for (const file of files) {
-    if (!file.name.match(/\.(tif|tiff|geotiff)$/i)) { alert('Please upload a GeoTIFF (.tif)'); continue; }
-    const n = file.name.toLowerCase();
-    let layerId;
-    if (n.includes('diff')) layerId = 'diff';
-    else if (n.includes('vuln') || n.includes('cv') || n.includes('climate') || n.includes('marginal')) layerId = 'cv';
-    else if (n.includes('prod') || n.includes('mp') || n.includes('max')) layerId = 'mp';
-    else {
-      const c = prompt(`Which scenario is "${file.name}"?\n\n1 = Climate Vulnerable\n2 = Maximum Productivity\n3 = Difference`, '2');
-      if (c==='1') layerId='cv'; else if (c==='2') layerId='mp'; else if (c==='3') layerId='diff'; else continue;
-    }
-    loadGeoTIFF(file, layerId);
-  }
 }
 </script>
 </body>
