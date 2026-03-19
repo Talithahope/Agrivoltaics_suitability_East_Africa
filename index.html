@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agrivoltaic Suitability — East Africa</title>
+<title>Agrivoltaic Biophysical Suitability in East Africa</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js"></script>
@@ -208,8 +208,8 @@ map.on('zoomend', function() {
 
 // Study sites (always visible — amber markers)
 const sites = [
-  {n:"Morogoro trial site",loc:"SAT, Tanzania",lt:-6.7413,ln:37.5494,cv:6,mp:7,ler:1.88},
-  {n:"Isinya trial site",loc:"Latia, Kenya",lt:-1.6850,ln:36.8308,cv:7,mp:7,ler:1.77}
+  {n:"Morogoro trial site",loc:"SAT, Tanzania",lt:-6.7413,ln:37.5494},
+  {n:"Isinya trial site",loc:"Latia, Kenya",lt:-1.6850,ln:36.8308}
 ];
 const siteGroup = L.layerGroup();
 sites.forEach(s => {
