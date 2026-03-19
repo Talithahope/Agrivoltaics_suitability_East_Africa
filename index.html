@@ -253,7 +253,11 @@
     <div class="panel-label">Difference (CV − MP)</div>
     <div class="legend-bar" id="legend-bar-diff"></div>
     <div class="legend-labels"><span>−5 — MP higher</span><span>+5 — CV higher</span></div>
-    <div style="margin-top:4px;text-align:center;font-size:9px;color:var(--text-faint);">0 = No difference</div>
+    <div style="margin-top:4px;text-align:center;font-size:9px;color:var(--text-faint);">0 = No difference (white)</div>
+    <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
+      <div style="width:14px;height:14px;border-radius:3px;background:#E1E1E1;opacity:0.5;border:1px solid rgba(255,255,255,0.1);"></div>
+      <span style="font-size:9px;color:var(--text-faint);">Unsuitable in both</span>
+    </div>
   </div>
   <div class="panel-section">
     <button class="icon-btn" onclick="showInfo()">
@@ -271,7 +275,7 @@
 <div class="modal-overlay" id="info-modal" onclick="if(event.target===this)closeInfo()">
   <div class="modal-box">
     <h2>What is this map?</h2>
-    <p>This interactive map shows the results of a <strong>multi-criteria spatial analysis</strong> assessing where agrivoltaic systems, the co-location of agriculture and solar panels, are biophysically suitable across East Africa according to two scenarios.</p>
+    <p>This interactive map shows the results of a <strong>multi-criteria spatial analysis</strong> assessing where agrivoltaic systems, the co-location of agriculture and solar panels, are biophysically suitable across East Africa according to two suitability scenarios.</p>
 
     <h3>Scenarios</h3>
     <p><strong>Climate Vulnerable</strong> prioritises areas where farming communities face the greatest climate risk.</p>
@@ -287,6 +291,7 @@
     <button class="close-btn" onclick="closeInfo()">Got it</button>
   </div>
 </div>
+
 
 <script>
 // Theme
@@ -410,6 +415,7 @@ function hexToRgba(hex, a) {
   return [r,g,b,a];
 }
 const colMap = {
+  '0': hexToRgba('#E1E1E1',120),
   '4': hexToRgba('#D6589E',220), '5': hexToRgba('#F5C4E1',220),
   '6': hexToRgba('#EBF6DB',220), '7': hexToRgba('#B0DC7C',220),
   '8': hexToRgba('#62A42F',220), '9': hexToRgba('#276419',220)
@@ -429,11 +435,14 @@ const diffColMap = {
    '5': hexToRgba('#2D004B',220)
 };
 
+// Colour for "inside bounds but unsuitable" in diff layer
+const UNSUITABLE_COL = hexToRgba('#E1E1E1', 120);
+
 // Raster layers and raw data storage
 let layers = { cv: null, mp: null, diff: null };
 let rasterData = { cv: null, mp: null, diff: null };
 let rasterMeta = { cv: null, mp: null, diff: null };
-let diffMask = null; // Band 2 of diff TIF: validity mask
+let diffPixelType = null; // Band 2 of diff TIF: 0=outside, 1=unsuitable, 2=suitable
 let activeLayer = 'cv';
 let currentOpacity = 0.75;
 
@@ -464,10 +473,10 @@ async function loadGeoTIFFFromURL(url, layerId) {
     rasterData[layerId] = data;
     rasterMeta[layerId] = { width, height, originX, originY, pixelW, pixelH };
 
-    // For the diff TIF, band 2 is the validity mask
+    // For the diff TIF, band 2 is the pixel type classification
     if (layerId === 'diff' && rasters.length >= 2) {
-      diffMask = rasters[1];
-      console.log('Loaded diff validity mask (band 2)');
+      diffPixelType = rasters[1];
+      console.log('Loaded diff pixel type mask (band 2): 0=outside, 1=unsuitable, 2=suitable');
     }
 
     if (layerId === 'diff') {
@@ -529,18 +538,44 @@ function renderDiffWhenReady() {
   const imgData = ctx.createImageData(width, height);
 
   for (let i = 0; i < diffData.length; i++) {
-    // If we have a mask (band 2), only render pixels where mask == 1
-    if (diffMask && diffMask[i] !== 1) continue;
+    const px = i * 4;
 
-    const raw = diffData[i];
-    if (!isFinite(raw)) continue;
-    const val = Math.round(raw);
-    if (val < -5 || val > 5) continue;
-    const c = diffColMap[String(val)];
-    if (c) {
-      const px = i * 4;
-      imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
-      imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
+    if (diffPixelType) {
+      const ptype = diffPixelType[i];
+
+      // Type 0: outside country boundaries → transparent (skip)
+      if (ptype === 0) continue;
+
+      // Type 1: inside boundaries, unsuitable in both → grey
+      if (ptype === 1) {
+        imgData.data[px]   = UNSUITABLE_COL[0];
+        imgData.data[px+1] = UNSUITABLE_COL[1];
+        imgData.data[px+2] = UNSUITABLE_COL[2];
+        imgData.data[px+3] = UNSUITABLE_COL[3];
+        continue;
+      }
+
+      // Type 2: suitable in at least one → use diff colormap
+      const raw = diffData[i];
+      if (!isFinite(raw)) continue;
+      const val = Math.round(raw);
+      if (val < -5 || val > 5) continue;
+      const c = diffColMap[String(val)];
+      if (c) {
+        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
+        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
+      }
+    } else {
+      // Fallback if no band 2 (old single-band TIF)
+      const raw = diffData[i];
+      if (!isFinite(raw)) continue;
+      const val = Math.round(raw);
+      if (val < -5 || val > 5) continue;
+      const c = diffColMap[String(val)];
+      if (c) {
+        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
+        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
+      }
     }
   }
   ctx.putImageData(imgData, 0, 0);
