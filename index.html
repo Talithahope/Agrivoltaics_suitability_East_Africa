@@ -274,15 +274,15 @@
     <p>This interactive map shows the results of a <strong>multi-criteria spatial analysis</strong> assessing where agrivoltaic systems — the co-location of solar panels and agriculture — are biophysically suitable across East Africa.</p>
 
     <h3>Scenarios</h3>
-    <p><strong>Climate Vulnerable</strong> prioritises areas where farming communities face the greatest climate risk, weighting factors like drought frequency, heat stress, and livelihood vulnerability more heavily.</p>
-    <p><strong>Maximum Productivity</strong> prioritises areas where agrivoltaic systems would generate the most combined energy and agricultural output, weighting solar irradiance and crop productivity more heavily.</p>
-    <p><strong>Difference (CV − MP)</strong> highlights where the two scenarios diverge. Positive values (purple) mean an area scores higher under the climate-vulnerable weighting; negative values (orange) mean it scores higher under the maximum-productivity weighting.</p>
+    <p><strong>Climate Vulnerable</strong> prioritises areas where farming communities face the greatest climate risk.</p>
+    <p><strong>Maximum Productivity</strong> prioritises areas where agrivoltaic systems would generate the most combined energy and agricultural output.</p>
+    <p><strong>Difference (CV − MP)</strong> highlights where the two scenarios diverge. Positive values (purple) mean an area scores higher under the climate vulnerable weighting; negative values (orange) mean the land scores higher under the maximum productivity weighting.</p>
 
     <h3>Suitability scores</h3>
-    <p>Scores range from 4 (low suitability) to 9 (high suitability). Areas scoring 0 were classified as unsuitable, and areas left transparent were excluded from the analysis entirely (e.g. water bodies, protected areas, steep terrain).</p>
+    <p>Scores range from 4 (low suitability) to 9 (high suitability). Areas scoring 0 were classified as unsuitable.</p>
 
     <h3>Trial sites</h3>
-    <p>The orange triangles mark real-world agrivoltaic trial sites in Kenya (Isinya) and Tanzania (Morogoro) that informed and validated the analysis.</p>
+    <p>The orange triangles mark real-world agrivoltaic trial sites in Kenya (Isinya) and Tanzania (Morogoro).</p>
 
     <button class="close-btn" onclick="closeInfo()">Got it</button>
   </div>
@@ -463,16 +463,10 @@ async function loadGeoTIFFFromURL(url, layerId) {
     rasterData[layerId] = data;
     rasterMeta[layerId] = { width, height, originX, originY, pixelW, pixelH };
 
-    // For the diff layer, we may need to wait for CV and MP to load first
     if (layerId === 'diff') {
       renderDiffWhenReady();
     } else {
       renderSuitabilityLayer(layerId);
-    }
-
-    // If both CV and MP are now loaded, re-render diff if it was loaded
-    if (layerId === 'cv' || layerId === 'mp') {
-      renderDiffWhenReady();
     }
   } catch (err) {
     console.error('Error loading ' + url, err);
@@ -516,13 +510,9 @@ function renderSuitabilityLayer(layerId) {
 }
 
 function renderDiffWhenReady() {
-  // Only render diff if we have all three datasets
-  if (!rasterData.diff || !rasterData.cv || !rasterData.mp) return;
-  if (!rasterMeta.diff) return;
+  if (!rasterData.diff || !rasterMeta.diff) return;
 
   const diffData = rasterData.diff;
-  const cvData = rasterData.cv;
-  const mpData = rasterData.mp;
   const meta = rasterMeta.diff;
   const { width, height, originX, originY, pixelW, pixelH } = meta;
 
@@ -532,25 +522,16 @@ function renderDiffWhenReady() {
   const imgData = ctx.createImageData(width, height);
 
   for (let i = 0; i < diffData.length; i++) {
-    const diffVal = Math.round(diffData[i]);
-    const px = i * 4;
-
-    if (diffVal === 0) {
-      // Only show 0-difference where at least one scenario was suitable (non-zero)
-      const cvVal = cvData[i] ? Math.round(cvData[i]) : 0;
-      const mpVal = mpData[i] ? Math.round(mpData[i]) : 0;
-      if (cvVal > 0 || mpVal > 0) {
-        const c = diffColMap['0'];
-        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
-        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
-      }
-      // Otherwise leave transparent
-    } else {
-      const c = diffColMap[String(diffVal)];
-      if (c) {
-        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
-        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
-      }
+    const raw = diffData[i];
+    // Skip nodata (-99, -9999, NaN) — only render values in [-5, +5]
+    if (!isFinite(raw)) continue;
+    const val = Math.round(raw);
+    if (val < -5 || val > 5) continue;
+    const c = diffColMap[String(val)];
+    if (c) {
+      const px = i * 4;
+      imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
+      imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
     }
   }
   ctx.putImageData(imgData, 0, 0);
