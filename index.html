@@ -271,7 +271,7 @@
 <div class="modal-overlay" id="info-modal" onclick="if(event.target===this)closeInfo()">
   <div class="modal-box">
     <h2>What is this map?</h2>
-    <p>This interactive map shows the results of a <strong>multi-criteria spatial analysis</strong> assessing where agrivoltaic systems — the co-location of solar panels and agriculture — are biophysically suitable across East Africa.</p>
+    <p>This interactive map shows the results of a <strong>multi-criteria spatial analysis</strong> assessing where agrivoltaic systems, the co-location of agriculture and solar panels, are biophysically suitable across East Africa according to two scenarios.</p>
 
     <h3>Scenarios</h3>
     <p><strong>Climate Vulnerable</strong> prioritises areas where farming communities face the greatest climate risk.</p>
@@ -433,6 +433,7 @@ const diffColMap = {
 let layers = { cv: null, mp: null, diff: null };
 let rasterData = { cv: null, mp: null, diff: null };
 let rasterMeta = { cv: null, mp: null, diff: null };
+let diffMask = null; // Band 2 of diff TIF: validity mask
 let activeLayer = 'cv';
 let currentOpacity = 0.75;
 
@@ -462,6 +463,12 @@ async function loadGeoTIFFFromURL(url, layerId) {
     // Store raw data and metadata
     rasterData[layerId] = data;
     rasterMeta[layerId] = { width, height, originX, originY, pixelW, pixelH };
+
+    // For the diff TIF, band 2 is the validity mask
+    if (layerId === 'diff' && rasters.length >= 2) {
+      diffMask = rasters[1];
+      console.log('Loaded diff validity mask (band 2)');
+    }
 
     if (layerId === 'diff') {
       renderDiffWhenReady();
@@ -522,8 +529,10 @@ function renderDiffWhenReady() {
   const imgData = ctx.createImageData(width, height);
 
   for (let i = 0; i < diffData.length; i++) {
+    // If we have a mask (band 2), only render pixels where mask == 1
+    if (diffMask && diffMask[i] !== 1) continue;
+
     const raw = diffData[i];
-    // Skip nodata (-99, -9999, NaN) — only render values in [-5, +5]
     if (!isFinite(raw)) continue;
     const val = Math.round(raw);
     if (val < -5 || val > 5) continue;
