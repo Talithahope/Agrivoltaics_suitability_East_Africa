@@ -252,12 +252,8 @@
   <div class="panel-section" id="legend-diff" style="display:none;">
     <div class="panel-label">Difference (CV − MP)</div>
     <div class="legend-bar" id="legend-bar-diff"></div>
-    <div class="legend-labels"><span>−5 — MP higher</span><span>+5 — CV higher</span></div>
+    <div class="legend-labels"><span>−3 — MP higher</span><span>+3 — CV higher</span></div>
     <div style="margin-top:4px;text-align:center;font-size:9px;color:var(--text-faint);">0 = No difference (white)</div>
-    <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
-      <div style="width:14px;height:14px;border-radius:3px;background:#E1E1E1;opacity:0.5;border:1px solid rgba(255,255,255,0.1);"></div>
-      <span style="font-size:9px;color:var(--text-faint);">Unsuitable in both</span>
-    </div>
   </div>
   <div class="panel-section">
     <button class="icon-btn" onclick="showInfo()">
@@ -344,7 +340,7 @@ const legendBar = document.getElementById('legend-bar');
 });
 
 // Build difference legend bar
-const DIFF_COLORS = ['#7F3B08','#B35806','#E08214','#FDB863','#FEE0B6','#F7F7F7','#D8DAEB','#B2ABD2','#8073AC','#542788','#2D004B'];
+const DIFF_COLORS = ['#E08214','#FDB863','#FEE0B6','#FFFFFF','#D8DAEB','#B2ABD2','#8073AC'];
 setTimeout(() => {
   const diffBar = document.getElementById('legend-bar-diff');
   if (diffBar) DIFF_COLORS.forEach(c => { const d = document.createElement('div'); d.style.background = c; diffBar.appendChild(d); });
@@ -422,17 +418,13 @@ const colMap = {
 };
 
 const diffColMap = {
-  '-5': hexToRgba('#7F3B08',220),
-  '-4': hexToRgba('#B35806',220),
   '-3': hexToRgba('#E08214',220),
   '-2': hexToRgba('#FDB863',220),
   '-1': hexToRgba('#FEE0B6',220),
-   '0': hexToRgba('#F7F7F7',180),
+   '0': hexToRgba('#FFFFFF',220),
    '1': hexToRgba('#D8DAEB',220),
    '2': hexToRgba('#B2ABD2',220),
-   '3': hexToRgba('#8073AC',220),
-   '4': hexToRgba('#542788',220),
-   '5': hexToRgba('#2D004B',220)
+   '3': hexToRgba('#8073AC',220)
 };
 
 // Colour for "inside bounds but unsuitable" in diff layer
@@ -546,14 +538,8 @@ function renderDiffWhenReady() {
       // Type 0: outside country boundaries → transparent (skip)
       if (ptype === 0) continue;
 
-      // Type 1: inside boundaries, unsuitable in both → grey
-      if (ptype === 1) {
-        imgData.data[px]   = UNSUITABLE_COL[0];
-        imgData.data[px+1] = UNSUITABLE_COL[1];
-        imgData.data[px+2] = UNSUITABLE_COL[2];
-        imgData.data[px+3] = UNSUITABLE_COL[3];
-        continue;
-      }
+      // Type 1: inside boundaries, unsuitable in both → transparent
+      if (ptype === 1) continue;
 
       // Type 2: suitable in at least one → use diff colormap
       const raw = diffData[i];
