@@ -161,8 +161,8 @@
   .city-dot { width: 5px; height: 5px; background: var(--city-dot-bg); border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); box-shadow: 0 0 4px rgba(255,255,255,0.2); }
   .site-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; color: #fbbf24; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
 
-  .unsuit-swatch { background: #fff; }
-  [data-theme="light"] .unsuit-swatch { background: #000; }
+  .unsuit-swatch { background: #000; }
+  [data-theme="light"] .unsuit-swatch { background: #fff; }
 
   .proj-note { font-size: 9px; color: var(--text-dim); margin-top: 8px; line-height: 1.4; font-style: italic; }
 
@@ -329,7 +329,7 @@ function setTheme(theme) {
 
   // Update unsuitable swatch color
   const swatch = document.querySelector('.unsuit-swatch');
-  if (swatch) swatch.style.background = theme === 'light' ? '#000' : '#fff';
+  if (swatch) swatch.style.background = theme === 'light' ? '#fff' : '#000';
 
   // Re-render suitability layers so unsuitable color updates
   if (rasterData.cv) renderSuitabilityLayer('cv');
@@ -474,7 +474,7 @@ const colMap = {
 
 // Unsuitable color depends on theme — set dynamically
 function getUnsuitableColor() {
-  return currentTheme === 'light' ? [0, 0, 0, 140] : [255, 255, 255, 140];
+  return currentTheme === 'light' ? [255, 255, 255, 140] : [0, 0, 0, 140];
 }
 
 const diffColMap = {
