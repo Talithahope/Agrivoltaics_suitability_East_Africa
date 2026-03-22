@@ -444,7 +444,7 @@
   <div class="panel-section" id="legend-suit">
     <div class="panel-label">Suitability Score</div>
     <div class="legend-bar" id="legend-bar"></div>
-    <div class="legend-labels"><span>4 — Low</span><span>9 — High</span></div>
+    <div class="legend-labels"><span>4: Low</span><span>9: High</span></div>
     <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
       <div class="unsuit-swatch" style="width:14px;height:14px;border-radius:3px;border:1px solid var(--panel-border);"></div>
       <span style="font-size:0.56rem;color:var(--text-faint);">0 — Unsuitable</span>
@@ -453,7 +453,7 @@
   <div class="panel-section" id="legend-diff" style="display:none;">
     <div class="panel-label">Difference (CV − MP)</div>
     <div class="legend-bar" id="legend-bar-diff"></div>
-    <div class="legend-labels"><span>−3 — MP higher</span><span>+3 — CV higher</span></div>
+    <div class="legend-labels"><span>−3: MP higher</span><span>+3: CV higher</span></div>
     <div style="margin-top:4px;text-align:center;font-size:0.56rem;color:var(--text-faint);">0 = No difference (no colour)</div>
   </div>
   <div class="panel-section">
@@ -486,7 +486,7 @@
         <div class="site-popup-location">Morogoro, Tanzania</div>
         <h2>Sustainable Agriculture Tanzania (SAT)</h2>
         <div class="site-type">36.6 kW off-grid system with battery storage</div>
-        <p>This off-grid agrivoltaic system replaced diesel generators at SAT's farmer training centre, generating 12.55 MWh of electricity over the study year — equivalent to an estimated saving of $5,310 per year against Tanzanian grid electricity costs.</p>
+        <p>This off-grid agrivoltaic system replaced diesel generators at SAT's farmer training centre, generating 12.55 MWh of electricity over the study year, equivalent to an estimated saving of $5,310 per year against Tanzanian grid electricity costs.</p>
         <p>Eight crops were tested across three growing seasons. Beans (+123.7%) and Swiss chard (+90.3%) had significantly higher yields under the agrivoltaic system. Maize (+11.8%), kale (−17.2%) and onions in the 2023 season (−15.9%) showed no statistically significant difference. Onions in the 2022 season (−20.7%), sweet pepper (−31.5%) and eggplant (−43.9%) had significantly lower yields, though even the lower-yielding crops still generated the highest incomes per hectare due to their high market value.</p>
         <p>Bean survival was substantially higher under the panels: 39% mortality compared with 62% in the control plot during a warm growing period. Maize showed a similar pattern, with 26% mortality under agrivoltaics versus 35% in the control. Panel shading reduced total irrigation use by 12.6%, and when combined with rainwater harvested from panel runoff, overall demand on SAT's centralised irrigation system fell by 14.4%.</p>
       </div>
@@ -538,15 +538,15 @@
 <div class="modal-overlay" id="info-modal" onclick="if(event.target===this)closeInfo()">
   <div class="modal-box">
     <h2>What is this map?</h2>
-    <p>This interactive map shows the results of a <strong>multi-criteria spatial analysis</strong> assessing where agrivoltaic systems — the co-location of solar panels and agriculture — are biophysically suitable across East Africa.</p>
+    <p>This interactive map shows the results of a multi-criteria spatial analysis assessing where agrivoltaic systems, the co-location of agriculture and solar panels, are biophysically suitable across East Africa according to two different scenarios.</p>
 
     <h3>Scenarios</h3>
-    <p><strong>Climate Vulnerable</strong> prioritises areas where farming communities face the greatest climate risk, weighting factors like drought frequency, heat stress, and livelihood vulnerability more heavily.</p>
-    <p><strong>Maximum Productivity</strong> prioritises areas where agrivoltaic systems would generate the most combined energy and agricultural output, weighting solar irradiance and crop productivity more heavily.</p>
-    <p><strong>Difference (CV − MP)</strong> highlights where the two scenarios diverge. Positive values (purple) mean an area scores higher under the climate-vulnerable weighting; negative values (orange) mean it scores higher under the maximum-productivity weighting.</p>
+    <p><strong>Climate Vulnerable (CV)</strong> prioritises areas where farming communities face the greatest climate risk.</p>
+    <p><strong>Maximum Productivity (MP)</strong> prioritises areas where agrivoltaic systems would generate the most combined energy and agricultural output.</p>
+    <p><strong>Difference (CV − MP)</strong> highlights where the two scenarios diverge. Positive values (purple) mean an area scores higher under the climate-vulnerable weighting; negative values (orange) mean it scores higher under the maximum-productivity scenario</p>
 
     <h3>Suitability scores</h3>
-    <p>Scores range from 4 (low suitability) to 9 (high suitability). Areas scoring 0 were classified as unsuitable, and areas left transparent were excluded from the analysis entirely (e.g. water bodies, protected areas, steep terrain).</p>
+    <p>Scores range from 4 (low suitability) to 9 (high suitability). Areas scoring 0 were classified as unsuitable.</p>
 
     <h3>Trial sites</h3>
     <p>The orange triangles mark real-world agrivoltaic trial sites in Kenya (Isinya) and Tanzania (Morogoro) that informed and validated the analysis. Click them to see field trial results from Randle-Boggis et al. (2025).</p>
