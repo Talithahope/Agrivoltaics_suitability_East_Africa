@@ -220,6 +220,8 @@
   .city-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'Lexend', sans-serif; font-size: 10px; font-weight: 400; color: var(--city-text); text-shadow: var(--city-shadow); white-space: nowrap; }
   .city-dot { width: 5px; height: 5px; background: var(--city-dot-bg); border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); box-shadow: 0 0 4px rgba(255,255,255,0.2); }
   .site-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'Lexend', sans-serif; font-size: 11px; font-weight: 400; color: #fbbf24; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap; cursor: pointer; }
+  [data-theme="light"] .site-label { color: #b45309; text-shadow: 0 1px 3px rgba(255,255,255,0.8), 0 0 6px rgba(255,255,255,0.5); }
+  [data-theme="light"] .site-popup-location { color: #b45309; }
 
   /* Site popup */
   .site-popup-overlay {
@@ -236,12 +238,11 @@
   }
   .site-popup-top {
     display: grid; grid-template-columns: 280px 1fr; min-height: 0;
-    align-items: start;
+    align-items: center;
   }
   .site-popup-img-wrap {
     position: relative; overflow: hidden;
     border-radius: 14px 0 0 0;
-    max-height: 360px;
   }
   .site-popup-img {
     width: 100%; height: 100%; object-fit: cover; display: block;
@@ -460,7 +461,7 @@
         <h2>Sustainable Agriculture Tanzania (SAT)</h2>
         <div class="site-type">36.6 kW off-grid system with battery storage</div>
         <p>This off-grid agrivoltaic system replaced diesel generators at SAT's farmer training centre, generating 12.55 MWh of electricity over the study year — equivalent to an estimated saving of $5,310 per year against Tanzanian grid electricity costs.</p>
-        <p>Eight crops were tested across three growing seasons. Beans (+123.7%) and Swiss chard (+90.3%) had significantly higher yields under the agrivoltaic system. Maize (+11.8%), kale (−17.2%) and onions in the 2023 season (−15.9%) showed no statistically significant difference. Onions in the 2022 season (−20.7%), sweet pepper (−31.5%) and eggplant (−43.9%) had significantly lower yields: though even the lower-yielding crops still generated the highest incomes per hectare due to their high market value.</p>
+        <p>Eight crops were tested across three growing seasons. Beans (+123.7%) and Swiss chard (+90.3%) had significantly higher yields under the agrivoltaic system. Maize (+11.8%), kale (−17.2%) and onions in the 2023 season (−15.9%) showed no statistically significant difference. Onions in the 2022 season (−20.7%), sweet pepper (−31.5%) and eggplant (−43.9%) had significantly lower yields — though even the lower-yielding crops still generated the highest incomes per hectare due to their high market value.</p>
         <p>Bean survival was substantially higher under the panels: 39% mortality compared with 62% in the control plot during a warm growing period. Maize showed a similar pattern, with 26% mortality under agrivoltaics versus 35% in the control. Panel shading reduced total irrigation use by 12.6%, and when combined with rainwater harvested from panel runoff, overall demand on SAT's centralised irrigation system fell by 14.4%.</p>
       </div>
     </div>
