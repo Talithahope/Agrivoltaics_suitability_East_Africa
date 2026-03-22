@@ -219,7 +219,72 @@
 
   .city-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'Lexend', sans-serif; font-size: 10px; font-weight: 400; color: var(--city-text); text-shadow: var(--city-shadow); white-space: nowrap; }
   .city-dot { width: 5px; height: 5px; background: var(--city-dot-bg); border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); box-shadow: 0 0 4px rgba(255,255,255,0.2); }
-  .site-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'Lexend', sans-serif; font-size: 11px; font-weight: 400; color: #fbbf24; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
+  .site-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'Lexend', sans-serif; font-size: 11px; font-weight: 400; color: #fbbf24; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap; cursor: pointer; }
+
+  /* Site popup */
+  .site-popup-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;
+  }
+  .site-popup-overlay.visible { display: flex; }
+  .site-popup {
+    background: var(--modal-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
+    border: 1px solid var(--panel-border); border-radius: 14px;
+    max-width: 480px; width: 92%; max-height: 85vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4); color: var(--modal-text);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .site-popup-img {
+    width: 100%; height: 220px; object-fit: cover;
+    border-radius: 14px 14px 0 0; display: block;
+  }
+  .site-popup-body { padding: 22px 24px 24px; }
+  .site-popup-location {
+    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em;
+    color: #fbbf24; font-weight: 500; margin-bottom: 4px;
+  }
+  .site-popup-body h2 {
+    font-size: 1.05rem; font-weight: 500; color: var(--text-primary);
+    margin-bottom: 4px; line-height: 1.3;
+  }
+  .site-popup-body .site-type {
+    font-size: 0.7rem; color: var(--accent); font-weight: 400; margin-bottom: 14px;
+  }
+  .site-popup-body p {
+    font-size: 0.8rem; font-weight: 300; line-height: 1.7; margin-bottom: 10px;
+  }
+  .site-popup-body .stat-row {
+    display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap;
+  }
+  .site-popup-body .stat {
+    flex: 1; min-width: 100px;
+    background: var(--btn-bg); border: 1px solid var(--btn-border);
+    border-radius: 8px; padding: 10px 12px; text-align: center;
+  }
+  .site-popup-body .stat-value {
+    font-size: 1.1rem; font-weight: 500; color: var(--accent);
+    line-height: 1.2;
+  }
+  .site-popup-body .stat-label {
+    font-size: 0.58rem; color: var(--text-faint); text-transform: uppercase;
+    letter-spacing: 0.08em; margin-top: 2px;
+  }
+  .site-popup-body .cite {
+    font-size: 0.62rem; color: var(--text-dim); font-style: italic;
+    margin-top: 14px; padding-top: 10px;
+    border-top: 1px solid var(--btn-border); line-height: 1.5;
+  }
+  .site-popup-body .cite a {
+    color: var(--accent); text-decoration: none;
+  }
+  .site-popup-body .cite a:hover { text-decoration: underline; }
+  .site-popup .close-btn {
+    display: block; margin: 16px auto 0; padding: 8px 28px;
+    background: var(--accent-bg); border: 1px solid var(--accent-border);
+    border-radius: 50px; color: var(--accent); font-family: 'Lexend', sans-serif;
+    font-size: 0.76rem; font-weight: 400; cursor: pointer; transition: all 0.3s;
+  }
+  .site-popup .close-btn:hover { background: var(--accent); color: #fff; }
 
   .unsuit-swatch { background: #000; }
   [data-theme="light"] .unsuit-swatch { background: #fff; }
@@ -276,6 +341,10 @@
     .back-link span { display: none; }
     .control-panel { top: 62px; right: 10px; width: 230px; padding: 14px; }
     .footer-bar { font-size: 0.55rem; padding: 5px 1rem; }
+    .site-popup { max-width: 95%; }
+    .site-popup-img { height: 160px; }
+    .site-popup-body { padding: 16px 18px 20px; }
+    .site-popup-body .stat-row { gap: 6px; }
   }
   @media (max-width: 400px) {
     .theme-toggle button span { display: none; }
@@ -362,6 +431,53 @@
   <span>&middot; University of Arizona</span>
 </div>
 
+<!-- ─── SITE POPUPS ─── -->
+<div class="site-popup-overlay" id="popup-morogoro" onclick="if(event.target===this)closeSitePopup()">
+  <div class="site-popup">
+    <img src="AV_Tanzania_Img2.jpg" alt="Crops growing beneath elevated solar panels at the SAT agrivoltaic site in Morogoro, Tanzania" class="site-popup-img">
+    <div class="site-popup-body">
+      <div class="site-popup-location">Morogoro, Tanzania</div>
+      <h2>Sustainable Agriculture Tanzania (SAT)</h2>
+      <div class="site-type">36.6 kW off-grid system with battery storage</div>
+      <p>This off-grid agrivoltaic system replaced diesel generators at SAT's farmer training centre, generating 12.55 MWh of electricity over the study year — equivalent to an estimated saving of $5,310 per year against Tanzanian grid electricity costs.</p>
+      <p>Eight crops were tested across three growing seasons. Beans (+123.7%) and Swiss chard (+90.3%) had significantly higher yields under the agrivoltaic system. Maize (+11.8%), kale (−17.2%) and onions in the 2023 season (−15.9%) showed no statistically significant difference. Onions in the 2022 season (−20.7%), sweet pepper (−31.5%) and eggplant (−43.9%) had significantly lower yields — though even the lower-yielding crops still generated the highest incomes per hectare due to their high market value.</p>
+      <p>Bean survival was substantially higher under the panels: 39% mortality compared with 62% in the control plot during a warm growing period. Maize showed a similar pattern, with 26% mortality under agrivoltaics versus 35% in the control. Panel shading reduced total irrigation use by 12.6%, and when combined with rainwater harvested from panel runoff, overall demand on SAT's centralised irrigation system fell by 14.4%.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-value">12.55</div><div class="stat-label">MWh generated</div></div>
+        <div class="stat"><div class="stat-value">1.88</div><div class="stat-label">Mean LER</div></div>
+        <div class="stat"><div class="stat-value">−14.4%</div><div class="stat-label">Irrigation demand</div></div>
+      </div>
+      <div class="cite">
+        Randle-Boggis, R.J., Barron-Gafford, G.A., Kimaro, A.A., Lamanna, C., Macharia, C., Maro, J., Mbele, A. &amp; Hartley, S.E. (2025). Harvesting the sun twice: Energy, food and water benefits from agrivoltaics in East Africa. <em>Renewable and Sustainable Energy Reviews</em>, 208, 115066. <a href="https://www.sciencedirect.com/science/article/pii/S1364032124007925" target="_blank">View paper →</a>
+      </div>
+      <button class="close-btn" onclick="closeSitePopup()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="site-popup-overlay" id="popup-isinya" onclick="if(event.target===this)closeSitePopup()">
+  <div class="site-popup">
+    <img src="AV_Kenya_Img1.jpg" alt="Agrivoltaic system with elevated solar panels over crop rows at Latia Agribusiness Solutions in Isinya, Kenya" class="site-popup-img">
+    <div class="site-popup-body">
+      <div class="site-popup-location">Isinya, Kenya</div>
+      <h2>Latia Agribusiness Solutions (LAS)</h2>
+      <div class="site-type">62.1 kW grid-tied system</div>
+      <p>This grid-tied agrivoltaic system at Latia's agribusiness headquarters generated 30.13 MWh over the study year, equivalent to 56% of the farm's annual electricity consumption and saving an estimated $5,725 per year against grid costs. If fully utilised, the system could generate savings exceeding $18,000 per year.</p>
+      <p>Four crops were tested. Kale performed significantly better under agrivoltaics, with heavier and wider leaves and taller plants. Coriander plants directly under a panel produced a significantly higher yield than the control, while those under a gap between panels showed no significant difference. Cabbage and onion both had significantly lower yields under the panels, with smaller and lighter produce — though cabbages grown under a gap between panels were not significantly different from the control.</p>
+      <p>As at the Tanzania site, combining crop production with electricity generation enhanced land productivity across all growing seasons. A rainwater harvesting system channelling panel runoff into storage tanks supplemented the existing irrigation supply.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-value">30.13</div><div class="stat-label">MWh generated</div></div>
+        <div class="stat"><div class="stat-value">1.77</div><div class="stat-label">Mean LER</div></div>
+        <div class="stat"><div class="stat-value">56%</div><div class="stat-label">Electricity offset</div></div>
+      </div>
+      <div class="cite">
+        Randle-Boggis, R.J., Barron-Gafford, G.A., Kimaro, A.A., Lamanna, C., Macharia, C., Maro, J., Mbele, A. &amp; Hartley, S.E. (2025). Harvesting the sun twice: Energy, food and water benefits from agrivoltaics in East Africa. <em>Renewable and Sustainable Energy Reviews</em>, 208, 115066. <a href="https://www.sciencedirect.com/science/article/pii/S1364032124007925" target="_blank">View paper →</a>
+      </div>
+      <button class="close-btn" onclick="closeSitePopup()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ─── INFO MODAL ─── -->
 <div class="modal-overlay" id="info-modal" onclick="if(event.target===this)closeInfo()">
   <div class="modal-box">
@@ -377,7 +493,7 @@
     <p>Scores range from 4 (low suitability) to 9 (high suitability). Areas scoring 0 were classified as unsuitable, and areas left transparent were excluded from the analysis entirely (e.g. water bodies, protected areas, steep terrain).</p>
 
     <h3>Trial sites</h3>
-    <p>The orange triangles mark real-world agrivoltaic trial sites in Kenya (Isinya) and Tanzania (Morogoro) that informed and validated the analysis.</p>
+    <p>The orange triangles mark real-world agrivoltaic trial sites in Kenya (Isinya) and Tanzania (Morogoro) that informed and validated the analysis. Click them to see field trial results from Randle-Boggis et al. (2025).</p>
 
     <button class="close-btn" onclick="closeInfo()">Got it</button>
   </div>
@@ -493,14 +609,19 @@ map.on('zoomend', function() {
 });
 
 const sites = [
-  {n:"Morogoro trial site",loc:"SAT, Tanzania",lt:-6.7413,ln:37.5494},
-  {n:"Isinya trial site",loc:"Latia, Kenya",lt:-1.6850,ln:36.8308}
+  {n:"Morogoro trial site",loc:"SAT, Tanzania",lt:-6.7413,ln:37.5494,popup:"popup-morogoro"},
+  {n:"Isinya trial site",loc:"Latia, Kenya",lt:-1.6850,ln:36.8308,popup:"popup-isinya"}
 ];
 const siteGroup = L.layerGroup();
 sites.forEach(s => {
-  L.marker([s.lt,s.ln],{icon:L.divIcon({className:'site-label',html:'▲ '+s.n,iconSize:[140,14],iconAnchor:[-10,7]}),pane:'labelsPane'}).addTo(siteGroup);
+  const marker = L.marker([s.lt,s.ln],{icon:L.divIcon({className:'site-label',html:'▲ '+s.n,iconSize:[140,14],iconAnchor:[-10,7]}),pane:'labelsPane'}).addTo(siteGroup);
+  marker.on('click', () => { document.getElementById(s.popup).classList.add('visible'); });
 });
 siteGroup.addTo(map);
+
+function closeSitePopup() {
+  document.querySelectorAll('.site-popup-overlay').forEach(el => el.classList.remove('visible'));
+}
 
 const STUDY_CODES = new Set([
   '729','736','728','231','232','262','706','520',
