@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agrivoltaic Biophysical Suitability in East Africa</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
     --bg: #080c14;
     --panel-bg: rgba(10,14,23,0.92);
     --panel-border: rgba(255,255,255,0.07);
-    --title-bg: rgba(10,14,23,0.88);
-    --title-border: rgba(255,255,255,0.08);
+    --header-bg: rgba(42,77,54,0.94);
+    --header-border: rgba(255,255,255,0.08);
     --text-primary: #f0f2f5;
     --text-body: #e0e4ec;
     --text-muted: #9ca3af;
@@ -27,9 +27,10 @@
     --btn-hover: rgba(255,255,255,0.08);
     --btn-text: #9ca3af;
     --btn-hover-text: #d1d5db;
-    --accent: #4ade80;
-    --accent-bg: rgba(74,222,128,0.1);
-    --accent-border: rgba(74,222,128,0.3);
+    --accent: #7aab88;
+    --accent-bright: #9fc5a8;
+    --accent-bg: rgba(122,171,136,0.12);
+    --accent-border: rgba(122,171,136,0.35);
     --slider-track: rgba(255,255,255,0.1);
     --slider-thumb: #e0e4ec;
     --city-text: #d1d5db;
@@ -46,14 +47,18 @@
     --modal-bg: rgba(10,14,23,0.95);
     --modal-text: #c9cdd5;
     --base-tile-opacity: 0.6;
+    --footer-bg: rgba(10,14,23,0.85);
+    --footer-text: rgba(255,255,255,0.3);
+    --footer-link: rgba(122,171,136,0.6);
+    --theme-active-bg: rgba(255,255,255,0.12);
   }
 
   [data-theme="light"] {
     --bg: #e8ecf0;
     --panel-bg: rgba(255,255,255,0.92);
     --panel-border: rgba(0,0,0,0.1);
-    --title-bg: rgba(255,255,255,0.9);
-    --title-border: rgba(0,0,0,0.08);
+    --header-bg: rgba(94,138,107,0.96);
+    --header-border: rgba(255,255,255,0.12);
     --text-primary: #1a1a2e;
     --text-body: #2d2d44;
     --text-muted: #5a5a72;
@@ -64,9 +69,10 @@
     --btn-hover: rgba(0,0,0,0.08);
     --btn-text: #5a5a72;
     --btn-hover-text: #2d2d44;
-    --accent: #16a34a;
-    --accent-bg: rgba(22,163,74,0.1);
-    --accent-border: rgba(22,163,74,0.35);
+    --accent: #3a6b4a;
+    --accent-bright: #5e8a6b;
+    --accent-bg: rgba(58,107,74,0.1);
+    --accent-border: rgba(58,107,74,0.35);
     --slider-track: rgba(0,0,0,0.12);
     --slider-thumb: #3d3d56;
     --city-text: #2d2d44;
@@ -83,9 +89,13 @@
     --modal-bg: rgba(255,255,255,0.97);
     --modal-text: #3d3d56;
     --base-tile-opacity: 0.45;
+    --footer-bg: rgba(255,255,255,0.85);
+    --footer-text: rgba(0,0,0,0.3);
+    --footer-link: rgba(58,107,74,0.6);
+    --theme-active-bg: rgba(255,255,255,0.2);
   }
 
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-body); height: 100vh; overflow: hidden; transition: background 0.4s ease; }
+  body { font-family: 'Lexend', sans-serif; font-weight: 300; background: var(--bg); color: var(--text-body); height: 100vh; overflow: hidden; transition: background 0.4s ease; }
   #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; background: var(--bg); }
 
   .leaflet-image-layer {
@@ -95,78 +105,144 @@
     -ms-interpolation-mode: nearest-neighbor !important;
   }
 
-  .title-bar {
-    position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 1000;
-    background: var(--title-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
-    border: 1px solid var(--title-border); border-radius: 12px; padding: 10px 24px;
-    text-align: center; pointer-events: none; white-space: nowrap;
+  /* ─── UNIFIED TOP BAR ─── */
+  .top-bar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
+    background: var(--header-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
+    border-bottom: 1px solid var(--header-border);
+    padding: 0 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px;
     transition: background 0.3s, border-color 0.3s;
   }
-  .title-bar h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.02em; color: var(--text-primary); }
-  .title-bar p { font-size: 11px; color: var(--text-faint); margin-top: 2px; font-weight: 300; }
+  .top-bar-left {
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .back-link {
+    display: flex; align-items: center; gap: 0.4rem;
+    text-decoration: none; color: rgba(255,255,255,0.6);
+    font-size: 0.72rem; font-weight: 400; letter-spacing: 0.04em;
+    transition: color 0.3s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .back-link:hover { color: rgba(255,255,255,0.95); }
+  .back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .bar-divider {
+    width: 1px; height: 20px; background: rgba(255,255,255,0.15); flex-shrink: 0;
+  }
+  .top-bar-title {
+    display: flex; flex-direction: column; justify-content: center; min-width: 0;
+  }
+  .top-bar-title h1 {
+    font-size: 0.85rem; font-weight: 500; color: #fff; letter-spacing: 0.01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .top-bar-title p {
+    font-size: 0.62rem; color: rgba(255,255,255,0.45); font-weight: 300; letter-spacing: 0.03em;
+    margin-top: 1px;
+  }
+  .top-bar-right {
+    display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
+  }
+  .theme-toggle {
+    display: flex; border-radius: 8px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .theme-toggle button {
+    background: none; border: none; padding: 6px 10px;
+    font-family: 'Lexend', sans-serif; font-size: 0.65rem; font-weight: 300;
+    color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 4px; letter-spacing: 0.02em;
+  }
+  .theme-toggle button.active {
+    color: #fff; background: var(--theme-active-bg); font-weight: 400;
+  }
+  .theme-toggle button:hover:not(.active) { color: rgba(255,255,255,0.8); }
+  .theme-toggle svg { width: 12px; height: 12px; }
 
+  /* ─── CONTROL PANEL ─── */
   .control-panel {
-    position: absolute; top: 90px; right: 16px; z-index: 1000;
+    position: absolute; top: 68px; right: 16px; z-index: 1000;
     background: var(--panel-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
-    border: 1px solid var(--panel-border); border-radius: 14px; padding: 20px; width: 260px;
-    box-shadow: 0 8px 32px var(--shadow); max-height: calc(100vh - 120px); overflow-y: auto;
+    border: 1px solid var(--panel-border); border-radius: 12px; padding: 18px; width: 250px;
+    box-shadow: 0 8px 32px var(--shadow); max-height: calc(100vh - 100px); overflow-y: auto;
     transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
   }
-  .panel-section { margin-bottom: 16px; }
+  .panel-section { margin-bottom: 14px; }
   .panel-section:last-child { margin-bottom: 0; }
-  .panel-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint); margin-bottom: 8px; }
+  .panel-label {
+    font-size: 0.6rem; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--text-faint); margin-bottom: 8px;
+  }
 
   .layer-btn {
-    display: block; width: 100%; padding: 8px 12px; margin-bottom: 6px;
+    display: block; width: 100%; padding: 7px 11px; margin-bottom: 5px;
     background: var(--btn-bg); border: 1px solid var(--btn-border);
-    border-radius: 8px; color: var(--btn-text); font-family: 'DM Sans', sans-serif;
-    font-size: 12px; font-weight: 400; cursor: pointer; transition: all 0.2s ease; text-align: left;
+    border-radius: 8px; color: var(--btn-text); font-family: 'Lexend', sans-serif;
+    font-size: 0.73rem; font-weight: 300; cursor: pointer; transition: all 0.2s ease; text-align: left;
   }
   .layer-btn:hover { background: var(--btn-hover); color: var(--btn-hover-text); }
-  .layer-btn.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); font-weight: 500; }
+  .layer-btn.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); font-weight: 400; }
   .layer-btn .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #374151; margin-right: 8px; transition: background 0.2s ease; vertical-align: middle; }
-  .layer-btn.active .dot { background: var(--accent); box-shadow: 0 0 6px rgba(74,222,128,0.4); }
+  .layer-btn.active .dot { background: var(--accent); box-shadow: 0 0 6px rgba(122,171,136,0.4); }
 
   .icon-btn {
     display: flex; align-items: center; justify-content: center; gap: 6px;
-    width: 100%; padding: 8px 12px;
+    width: 100%; padding: 7px 11px;
     background: var(--btn-bg); border: 1px solid var(--btn-border);
-    border-radius: 8px; color: var(--btn-text); font-family: 'DM Sans', sans-serif;
-    font-size: 12px; font-weight: 400; cursor: pointer; transition: all 0.2s ease;
+    border-radius: 8px; color: var(--btn-text); font-family: 'Lexend', sans-serif;
+    font-size: 0.73rem; font-weight: 300; cursor: pointer; transition: all 0.2s ease;
   }
   .icon-btn:hover { background: var(--btn-hover); color: var(--btn-hover-text); }
   .icon-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
   .slider-row { display: flex; align-items: center; gap: 10px; }
-  .slider-row input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: var(--slider-track); border-radius: 2px; outline: none; }
-  .slider-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--slider-thumb); cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
-  .slider-value { font-size: 11px; color: var(--text-muted); min-width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
+  .slider-row input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 3px; background: var(--slider-track); border-radius: 2px; outline: none; }
+  .slider-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--slider-thumb); cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .slider-value { font-size: 0.68rem; color: var(--text-muted); min-width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
 
-  .legend-bar { display: flex; height: 14px; border-radius: 4px; overflow: hidden; margin-bottom: 4px; }
+  .legend-bar { display: flex; height: 12px; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
   .legend-bar div { flex: 1; }
-  .legend-labels { display: flex; justify-content: space-between; font-size: 9px; color: var(--text-faint); }
+  .legend-labels { display: flex; justify-content: space-between; font-size: 0.56rem; color: var(--text-faint); }
 
-  .loading { display: none; text-align: center; padding: 8px; font-size: 11px; color: var(--accent); }
+  .loading { display: none; text-align: center; padding: 8px; font-size: 0.68rem; color: var(--accent); }
   .loading.visible { display: block; }
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(74,222,128,0.2); border-top-color: #4ade80; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 6px; vertical-align: middle; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(122,171,136,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 6px; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .leaflet-control-zoom { border: none !important; }
-  .leaflet-control-zoom a { background: var(--zoom-bg) !important; color: var(--zoom-text) !important; border: 1px solid var(--panel-border) !important; backdrop-filter: blur(12px); }
+  .leaflet-control-zoom a { background: var(--zoom-bg) !important; color: var(--zoom-text) !important; border: 1px solid var(--panel-border) !important; backdrop-filter: blur(12px); font-family: 'Lexend', sans-serif !important; }
   .leaflet-control-zoom a:hover { background: var(--zoom-hover-bg) !important; color: var(--zoom-hover-text) !important; }
-  .leaflet-control-attribution { background: var(--attr-bg) !important; color: var(--attr-text) !important; font-size: 9px !important; }
+  .leaflet-control-attribution { background: var(--attr-bg) !important; color: var(--attr-text) !important; font-size: 9px !important; font-family: 'Lexend', sans-serif !important; }
   .leaflet-control-attribution a { color: var(--text-faint) !important; }
 
-  .city-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; color: var(--city-text); text-shadow: var(--city-shadow); white-space: nowrap; }
+  .city-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'Lexend', sans-serif; font-size: 10px; font-weight: 400; color: var(--city-text); text-shadow: var(--city-shadow); white-space: nowrap; }
   .city-dot { width: 5px; height: 5px; background: var(--city-dot-bg); border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); box-shadow: 0 0 4px rgba(255,255,255,0.2); }
-  .site-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; color: #fbbf24; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
+  .site-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'Lexend', sans-serif; font-size: 11px; font-weight: 400; color: #fbbf24; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
 
   .unsuit-swatch { background: #000; }
   [data-theme="light"] .unsuit-swatch { background: #fff; }
 
-  .proj-note { font-size: 9px; color: var(--text-dim); margin-top: 8px; line-height: 1.4; font-style: italic; }
+  .proj-note { font-size: 0.55rem; color: var(--text-dim); margin-top: 8px; line-height: 1.5; font-style: italic; }
 
-  /* Info modal */
+  /* ─── FOOTER ATTRIBUTION ─── */
+  .footer-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 999;
+    background: var(--footer-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    padding: 6px 1.5rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.3rem;
+    font-size: 0.6rem; color: var(--footer-text); font-weight: 300;
+    pointer-events: auto;
+    transition: background 0.3s;
+  }
+  .footer-bar a {
+    color: var(--footer-link); text-decoration: none; font-weight: 400;
+    transition: color 0.3s;
+  }
+  .footer-bar a:hover { color: var(--accent); }
+
+  /* ─── INFO MODAL ─── */
   .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;
@@ -174,59 +250,70 @@
   .modal-overlay.visible { display: flex; }
   .modal-box {
     background: var(--modal-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
-    border: 1px solid var(--panel-border); border-radius: 16px; padding: 28px;
+    border: 1px solid var(--panel-border); border-radius: 14px; padding: 26px;
     max-width: 520px; width: 90%; max-height: 80vh; overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0,0,0,0.4); color: var(--modal-text);
     transition: background 0.3s, border-color 0.3s;
   }
-  .modal-box h2 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; }
-  .modal-box h3 { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 16px; margin-bottom: 6px; }
-  .modal-box p { font-size: 12.5px; line-height: 1.65; margin-bottom: 8px; }
+  .modal-box h2 { font-size: 1rem; font-weight: 500; color: var(--text-primary); margin-bottom: 14px; }
+  .modal-box h3 { font-size: 0.72rem; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 16px; margin-bottom: 6px; }
+  .modal-box p { font-size: 0.8rem; font-weight: 300; line-height: 1.7; margin-bottom: 8px; }
+  .modal-box strong { font-weight: 500; }
   .modal-box .close-btn {
     display: block; margin: 18px auto 0; padding: 8px 28px;
     background: var(--accent-bg); border: 1px solid var(--accent-border);
-    border-radius: 8px; color: var(--accent); font-family: 'DM Sans', sans-serif;
-    font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+    border-radius: 50px; color: var(--accent); font-family: 'Lexend', sans-serif;
+    font-size: 0.76rem; font-weight: 400; cursor: pointer; transition: all 0.3s;
   }
   .modal-box .close-btn:hover { background: var(--accent); color: #fff; }
 
-  /* Theme toggle */
-  .theme-toggle {
-    position: absolute; top: 16px; left: 16px; z-index: 1000;
-    background: var(--title-bg); backdrop-filter: var(--backdrop); -webkit-backdrop-filter: var(--backdrop);
-    border: 1px solid var(--title-border); border-radius: 10px;
-    display: flex; overflow: hidden; transition: background 0.3s, border-color 0.3s;
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 680px) {
+    .top-bar { padding: 0 1rem; height: 48px; }
+    .top-bar-title h1 { font-size: 0.75rem; }
+    .top-bar-title p { display: none; }
+    .bar-divider { display: none; }
+    .back-link span { display: none; }
+    .control-panel { top: 62px; right: 10px; width: 230px; padding: 14px; }
+    .footer-bar { font-size: 0.55rem; padding: 5px 1rem; }
   }
-  .theme-toggle button {
-    background: none; border: none; padding: 8px 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400;
-    color: var(--text-muted); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+  @media (max-width: 400px) {
+    .theme-toggle button span { display: none; }
+    .control-panel { width: 200px; }
   }
-  .theme-toggle button.active { color: var(--text-primary); background: var(--btn-hover); font-weight: 500; }
-  .theme-toggle button:hover:not(.active) { color: var(--btn-hover-text); }
-  .theme-toggle svg { width: 13px; height: 13px; }
 </style>
 </head>
 <body>
 <div id="map"></div>
 
-<div class="title-bar">
-  <h1>Agrivoltaic Biophysical Suitability in East Africa</h1>
-  <p>Multi-criteria spatial analysis</p>
+<!-- ─── UNIFIED TOP BAR ─── -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <a href="https://talithahope.github.io/" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      <span>Back to main site</span>
+    </a>
+    <div class="bar-divider"></div>
+    <div class="top-bar-title">
+      <h1>Agrivoltaic Biophysical Suitability in East Africa</h1>
+      <p>Multi-criteria spatial analysis</p>
+    </div>
+  </div>
+  <div class="top-bar-right">
+    <div class="theme-toggle">
+      <button id="theme-dark" class="active" onclick="setTheme('dark')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+        <span>Dark</span>
+      </button>
+      <button id="theme-light" onclick="setTheme('light')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <span>Light</span>
+      </button>
+    </div>
+  </div>
 </div>
 
-<!-- Theme toggle -->
-<div class="theme-toggle">
-  <button id="theme-dark" class="active" onclick="setTheme('dark')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
-    Dark
-  </button>
-  <button id="theme-light" onclick="setTheme('light')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-    Light
-  </button>
-</div>
-
+<!-- ─── CONTROL PANEL ─── -->
 <div class="control-panel">
   <div class="panel-section">
     <div class="panel-label">Scenario</div>
@@ -247,14 +334,14 @@
     <div class="legend-labels"><span>4 — Low</span><span>9 — High</span></div>
     <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
       <div class="unsuit-swatch" style="width:14px;height:14px;border-radius:3px;border:1px solid var(--panel-border);"></div>
-      <span style="font-size:9px;color:var(--text-faint);">0 — Unsuitable</span>
+      <span style="font-size:0.56rem;color:var(--text-faint);">0 — Unsuitable</span>
     </div>
   </div>
   <div class="panel-section" id="legend-diff" style="display:none;">
     <div class="panel-label">Difference (CV − MP)</div>
     <div class="legend-bar" id="legend-bar-diff"></div>
     <div class="legend-labels"><span>−3 — MP higher</span><span>+3 — CV higher</span></div>
-    <div style="margin-top:4px;text-align:center;font-size:9px;color:var(--text-faint);">0 = No difference (no colour)</div>
+    <div style="margin-top:4px;text-align:center;font-size:0.56rem;color:var(--text-faint);">0 = No difference (no colour)</div>
   </div>
   <div class="panel-section">
     <button class="icon-btn" onclick="showInfo()">
@@ -268,7 +355,14 @@
   </div>
 </div>
 
-<!-- Info modal -->
+<!-- ─── FOOTER ATTRIBUTION ─── -->
+<div class="footer-bar">
+  <span>Analysis &amp; visualisation by</span>
+  <a href="https://talithahope.github.io/" target="_blank">Talitha H. Neesham-McTiernan</a>
+  <span>&middot; University of Arizona</span>
+</div>
+
+<!-- ─── INFO MODAL ─── -->
 <div class="modal-overlay" id="info-modal" onclick="if(event.target===this)closeInfo()">
   <div class="modal-box">
     <h2>What is this map?</h2>
@@ -300,7 +394,6 @@ function setTheme(theme) {
   document.getElementById('theme-dark').classList.toggle('active', theme === 'dark');
   document.getElementById('theme-light').classList.toggle('active', theme === 'light');
 
-  // Swap tile layers
   if (baseTileLayer) map.removeLayer(baseTileLayer);
   if (labelTileLayer) map.removeLayer(labelTileLayer);
 
@@ -320,18 +413,15 @@ function setTheme(theme) {
     }).addTo(map);
   }
 
-  // Update country border color for theme
   if (typeof borderLayer !== 'undefined' && borderLayer) {
     borderLayer.setStyle({
       color: theme === 'light' ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.4)'
     });
   }
 
-  // Update unsuitable swatch color
   const swatch = document.querySelector('.unsuit-swatch');
   if (swatch) swatch.style.background = theme === 'light' ? '#fff' : '#000';
 
-  // Re-render suitability layers so unsuitable color updates
   if (rasterData.cv) renderSuitabilityLayer('cv');
   if (rasterData.mp) renderSuitabilityLayer('mp');
 }
@@ -346,7 +436,6 @@ const COLORS_HEX = {
   7: '#B0DC7C', 8: '#62A42F', 9: '#276419'
 };
 
-// Build suitability legend bar
 const legendBar = document.getElementById('legend-bar');
 [4,5,6,7,8,9].forEach(v => {
   const d = document.createElement('div');
@@ -354,7 +443,6 @@ const legendBar = document.getElementById('legend-bar');
   legendBar.appendChild(d);
 });
 
-// Build difference legend bar
 const DIFF_COLORS = ['#E08214','#FDB863','#FEE0B6','#FFFFFF','#D8DAEB','#B2ABD2','#8073AC'];
 setTimeout(() => {
   const diffBar = document.getElementById('legend-bar-diff');
@@ -364,7 +452,6 @@ setTimeout(() => {
 // Map
 const map = L.map('map', { center: [5, 38], zoom: 5, zoomControl: true, minZoom: 3, maxZoom: 12 });
 
-// Create panes
 map.createPane('landPane');
 map.getPane('landPane').style.zIndex = 200;
 map.createPane('rasterPane');
@@ -374,7 +461,6 @@ map.getPane('labelsPane').style.zIndex = 500;
 map.createPane('cityPane');
 map.getPane('cityPane').style.zIndex = 550;
 
-// Initial tile layers (dark)
 baseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
   subdomains: 'abcd', maxZoom: 19, pane: 'landPane', opacity: 0.6
 }).addTo(map);
@@ -382,7 +468,6 @@ labelTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels
   subdomains: 'abcd', maxZoom: 19, pane: 'labelsPane'
 }).addTo(map);
 
-// Custom city labels
 const cities = [
   {n:"Addis Ababa",lt:9.02,ln:38.75},{n:"Nairobi",lt:-1.29,ln:36.82},{n:"Dar es Salaam",lt:-6.79,ln:39.28},
   {n:"Kampala",lt:0.35,ln:32.58},{n:"Khartoum",lt:15.59,ln:32.53},{n:"Mogadishu",lt:2.05,ln:45.32},
@@ -407,7 +492,6 @@ map.on('zoomend', function() {
   if (z >= LABEL_HIDE_ZOOM) { pane.style.display = 'none'; } else { pane.style.display = ''; }
 });
 
-// Study sites
 const sites = [
   {n:"Morogoro trial site",loc:"SAT, Tanzania",lt:-6.7413,ln:37.5494},
   {n:"Isinya trial site",loc:"Latia, Kenya",lt:-1.6850,ln:36.8308}
@@ -418,22 +502,14 @@ sites.forEach(s => {
 });
 siteGroup.addTo(map);
 
-// Study country outlines
-const STUDY_COUNTRIES = [
-  'Sudan','South Sudan','Ethiopia','Eritrea','Djibouti','Somalia',
-  'Kenya','Uganda','Tanzania','Rwanda','Burundi'
-];
-
-// ISO 3166-1 numeric codes for the study countries
 const STUDY_CODES = new Set([
-  '729','736','728','231','232','262','706', '520', // Sudan (new+old), S.Sudan, Ethiopia, Eritrea, Djibouti, Somalia
-  '404','800','834','646','108'               // Kenya, Uganda, Tanzania, Rwanda, Burundi
+  '729','736','728','231','232','262','706','520',
+  '404','800','834','646','108'
 ]);
 
 map.createPane('borderPane');
 map.getPane('borderPane').style.zIndex = 450;
 
-// Load lightweight TopoJSON (~200KB) + conversion library
 let borderLayer = null;
 
 const topoScript = document.createElement('script');
@@ -444,24 +520,20 @@ topoScript.onload = () => {
     .then(topo => {
       const allCountries = topojson.feature(topo, topo.objects.countries);
       const studyFeatures = allCountries.features.filter(f => STUDY_CODES.has(f.id));
-
       borderLayer = L.geoJSON(studyFeatures, {
         style: function() {
           return {
             color: currentTheme === 'light' ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.4)',
-            weight: 1.5,
-            fillColor: 'transparent',
-            fillOpacity: 0,
+            weight: 1.5, fillColor: 'transparent', fillOpacity: 0,
           };
         },
         pane: 'borderPane'
       }).addTo(map);
-
-      console.log('Loaded', studyFeatures.length, 'study country outlines');
     })
     .catch(err => console.warn('Could not load country boundaries:', err));
 };
 document.head.appendChild(topoScript);
+
 function hexToRgba(hex, a) {
   const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
   return [r,g,b,a];
@@ -472,33 +544,26 @@ const colMap = {
   '8': hexToRgba('#62A42F',220), '9': hexToRgba('#276419',220)
 };
 
-// Unsuitable color depends on theme — set dynamically
 function getUnsuitableColor() {
   return currentTheme === 'light' ? [255, 255, 255, 140] : [0, 0, 0, 140];
 }
 
 const diffColMap = {
-  '-3': hexToRgba('#E08214',220),
-  '-2': hexToRgba('#FDB863',220),
-  '-1': hexToRgba('#FEE0B6',220),
-   '0': hexToRgba('#FFFFFF',220),
-   '1': hexToRgba('#D8DAEB',220),
-   '2': hexToRgba('#B2ABD2',220),
-   '3': hexToRgba('#8073AC',220)
+  '-3': hexToRgba('#E08214',220), '-2': hexToRgba('#FDB863',220),
+  '-1': hexToRgba('#FEE0B6',220), '0': hexToRgba('#FFFFFF',220),
+  '1': hexToRgba('#D8DAEB',220), '2': hexToRgba('#B2ABD2',220),
+  '3': hexToRgba('#8073AC',220)
 };
 
-// Colour for "inside bounds but unsuitable" in diff layer
 const UNSUITABLE_COL = hexToRgba('#E1E1E1', 120);
 
-// Raster layers and raw data storage
 let layers = { cv: null, mp: null, diff: null };
 let rasterData = { cv: null, mp: null, diff: null };
 let rasterMeta = { cv: null, mp: null, diff: null };
-let diffPixelType = null; // Band 2 of diff TIF: 0=outside, 1=unsuitable, 2=suitable
+let diffPixelType = null;
 let activeLayer = 'cv';
 let currentOpacity = 0.75;
 
-// Load GeoTIFF and store raw data
 async function loadGeoTIFFFromURL(url, layerId) {
   const loading = document.getElementById('loading');
   loading.classList.add('visible');
@@ -520,22 +585,12 @@ async function loadGeoTIFFFromURL(url, layerId) {
       originX = bbox[0]; originY = bbox[3];
       pixelW = (bbox[2]-bbox[0])/width; pixelH = -(bbox[3]-bbox[1])/height;
     }
-
-    // Store raw data and metadata
     rasterData[layerId] = data;
     rasterMeta[layerId] = { width, height, originX, originY, pixelW, pixelH };
-
-    // For the diff TIF, band 2 is the pixel type classification
     if (layerId === 'diff' && rasters.length >= 2) {
       diffPixelType = rasters[1];
-      console.log('Loaded diff pixel type mask (band 2): 0=outside, 1=unsuitable, 2=suitable');
     }
-
-    if (layerId === 'diff') {
-      renderDiffWhenReady();
-    } else {
-      renderSuitabilityLayer(layerId);
-    }
+    if (layerId === 'diff') { renderDiffWhenReady(); } else { renderSuitabilityLayer(layerId); }
   } catch (err) {
     console.error('Error loading ' + url, err);
   } finally {
@@ -547,37 +602,28 @@ function renderSuitabilityLayer(layerId) {
   const data = rasterData[layerId];
   const meta = rasterMeta[layerId];
   if (!data || !meta) return;
-
   const { width, height, originX, originY, pixelW, pixelH } = meta;
   const canvas = document.createElement('canvas');
   canvas.width = width; canvas.height = height;
   const ctx = canvas.getContext('2d');
   const imgData = ctx.createImageData(width, height);
-
   for (let i = 0; i < data.length; i++) {
     const val = Math.round(data[i]), px = i * 4;
     if (val === 0) {
       const u = getUnsuitableColor();
-      imgData.data[px]=u[0]; imgData.data[px+1]=u[1];
-      imgData.data[px+2]=u[2]; imgData.data[px+3]=u[3];
+      imgData.data[px]=u[0]; imgData.data[px+1]=u[1]; imgData.data[px+2]=u[2]; imgData.data[px+3]=u[3];
     } else {
       const c = colMap[String(val)];
-      if (c) {
-        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
-        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
-      }
+      if (c) { imgData.data[px]=c[0]; imgData.data[px+1]=c[1]; imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3]; }
     }
   }
   ctx.putImageData(imgData, 0, 0);
-
   const south = originY + pixelH * height, north = originY;
   const west = originX, east = originX + pixelW * width;
   const bounds = L.latLngBounds(L.latLng(south, west), L.latLng(north, east));
-
   if (layers[layerId]) map.removeLayer(layers[layerId]);
   const overlay = L.imageOverlay(canvas.toDataURL(), bounds, {
-    opacity: layerId === activeLayer ? currentOpacity : 0,
-    interactive: false, pane: 'rasterPane'
+    opacity: layerId === activeLayer ? currentOpacity : 0, interactive: false, pane: 'rasterPane'
   });
   overlay.addTo(map);
   layers[layerId] = overlay;
@@ -585,67 +631,46 @@ function renderSuitabilityLayer(layerId) {
 
 function renderDiffWhenReady() {
   if (!rasterData.diff || !rasterMeta.diff) return;
-
   const diffData = rasterData.diff;
   const meta = rasterMeta.diff;
   const { width, height, originX, originY, pixelW, pixelH } = meta;
-
   const canvas = document.createElement('canvas');
   canvas.width = width; canvas.height = height;
   const ctx = canvas.getContext('2d');
   const imgData = ctx.createImageData(width, height);
-
   for (let i = 0; i < diffData.length; i++) {
     const px = i * 4;
-
     if (diffPixelType) {
       const ptype = diffPixelType[i];
-
-      // Type 0: outside country boundaries → transparent (skip)
       if (ptype === 0) continue;
-
-      // Type 1: inside boundaries, unsuitable in both → transparent
       if (ptype === 1) continue;
-
-      // Type 2: suitable in at least one → use diff colormap
       const raw = diffData[i];
       if (!isFinite(raw)) continue;
       const val = Math.round(raw);
       if (val < -5 || val > 5) continue;
       const c = diffColMap[String(val)];
-      if (c) {
-        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
-        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
-      }
+      if (c) { imgData.data[px]=c[0]; imgData.data[px+1]=c[1]; imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3]; }
     } else {
-      // Fallback if no band 2 (old single-band TIF)
       const raw = diffData[i];
       if (!isFinite(raw)) continue;
       const val = Math.round(raw);
       if (val < -5 || val > 5) continue;
       const c = diffColMap[String(val)];
-      if (c) {
-        imgData.data[px]=c[0]; imgData.data[px+1]=c[1];
-        imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3];
-      }
+      if (c) { imgData.data[px]=c[0]; imgData.data[px+1]=c[1]; imgData.data[px+2]=c[2]; imgData.data[px+3]=c[3]; }
     }
   }
   ctx.putImageData(imgData, 0, 0);
-
   const south = originY + pixelH * height, north = originY;
   const west = originX, east = originX + pixelW * width;
   const bounds = L.latLngBounds(L.latLng(south, west), L.latLng(north, east));
-
   if (layers.diff) map.removeLayer(layers.diff);
   const overlay = L.imageOverlay(canvas.toDataURL(), bounds, {
-    opacity: activeLayer === 'diff' ? currentOpacity : 0,
-    interactive: false, pane: 'rasterPane'
+    opacity: activeLayer === 'diff' ? currentOpacity : 0, interactive: false, pane: 'rasterPane'
   });
   overlay.addTo(map);
   layers.diff = overlay;
 }
 
-// Load all layers on startup
 loadGeoTIFFFromURL('ea_cv_w_v3.tif', 'cv');
 loadGeoTIFFFromURL('ea_mp_w_v3.tif', 'mp');
 loadGeoTIFFFromURL('ea_diff_cv_minus_mp.tif', 'diff');
