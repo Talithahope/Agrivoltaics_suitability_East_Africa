@@ -219,9 +219,35 @@
 
   .city-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'Lexend', sans-serif; font-size: 10px; font-weight: 400; color: var(--city-text); text-shadow: var(--city-shadow); white-space: nowrap; }
   .city-dot { width: 5px; height: 5px; background: var(--city-dot-bg); border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); box-shadow: 0 0 4px rgba(255,255,255,0.2); }
-  .site-label { background: none !important; border: none !important; box-shadow: none !important; font-family: 'Lexend', sans-serif; font-size: 11px; font-weight: 400; color: #fbbf24; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap; cursor: pointer; }
+
+  /* ─── SITE MARKERS (clickable trial sites) ─── */
+  .site-marker-wrap {
+    position: relative;
+    cursor: pointer;
+  }
+  .site-label {
+    background: none !important; border: none !important; box-shadow: none !important;
+    font-family: 'Lexend', sans-serif; font-size: 11px; font-weight: 500;
+    color: #fbbf24; white-space: nowrap; cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
+  }
+  .site-label:hover {
+    transform: scale(1.08);
+    filter: brightness(1.3);
+  }
+  .site-label .site-hint {
+    display: block;
+    font-size: 8.5px; font-weight: 300; opacity: 0;
+    margin-top: 1px; letter-spacing: 0.03em;
+    transition: opacity 0.25s ease;
+  }
+  .site-label:hover .site-hint {
+    opacity: 1;
+  }
   [data-theme="light"] .site-label { color: #b45309; text-shadow: 0 1px 3px rgba(255,255,255,0.8), 0 0 6px rgba(255,255,255,0.5); }
   [data-theme="light"] .site-popup-location { color: #b45309; }
+
+
 
   /* Site popup */
   .site-popup-overlay {
@@ -461,7 +487,7 @@
         <h2>Sustainable Agriculture Tanzania (SAT)</h2>
         <div class="site-type">36.6 kW off-grid system with battery storage</div>
         <p>This off-grid agrivoltaic system replaced diesel generators at SAT's farmer training centre, generating 12.55 MWh of electricity over the study year — equivalent to an estimated saving of $5,310 per year against Tanzanian grid electricity costs.</p>
-        <p>Eight crops were tested across three growing seasons. Beans (+123.7%) and Swiss chard (+90.3%) had significantly higher yields under the agrivoltaic system. Maize (+11.8%), kale (−17.2%) and onions in the 2023 season (−15.9%) showed no statistically significant difference. Onions in the 2022 season (−20.7%), sweet pepper (−31.5%) and eggplant (−43.9%) had significantly lower yields — though even the lower-yielding crops still generated the highest incomes per hectare due to their high market value.</p>
+        <p>Eight crops were tested across three growing seasons. Beans (+123.7%) and Swiss chard (+90.3%) had significantly higher yields under the agrivoltaic system. Maize (+11.8%), kale (−17.2%) and onions in the 2023 season (−15.9%) showed no statistically significant difference. Onions in the 2022 season (−20.7%), sweet pepper (−31.5%) and eggplant (−43.9%) had significantly lower yields, though even the lower-yielding crops still generated the highest incomes per hectare due to their high market value.</p>
         <p>Bean survival was substantially higher under the panels: 39% mortality compared with 62% in the control plot during a warm growing period. Maize showed a similar pattern, with 26% mortality under agrivoltaics versus 35% in the control. Panel shading reduced total irrigation use by 12.6%, and when combined with rainwater harvested from panel runoff, overall demand on SAT's centralised irrigation system fell by 14.4%.</p>
       </div>
     </div>
@@ -490,7 +516,7 @@
         <h2>Latia Agribusiness Solutions (LAS)</h2>
         <div class="site-type">62.1 kW grid-tied system</div>
         <p>This grid-tied agrivoltaic system at Latia's agribusiness headquarters generated 30.13 MWh over the study year, equivalent to 56% of the farm's annual electricity consumption and saving an estimated $5,725 per year against grid costs. If fully utilised, the system could generate savings exceeding $18,000 per year.</p>
-        <p>Four crops were tested. Kale performed significantly better under agrivoltaics, with heavier and wider leaves and taller plants. Coriander plants directly under a panel produced a significantly higher yield than the control, while those under a gap between panels showed no significant difference. Cabbage and onion both had significantly lower yields under the panels, with smaller and lighter produce — though cabbages grown under a gap between panels were not significantly different from the control.</p>
+        <p>Four crops were tested. Kale performed significantly better under agrivoltaics, with heavier and wider leaves and taller plants. Coriander plants directly under a panel produced a significantly higher yield than the control, while those under a gap between panels showed no significant difference. Cabbage and onion both had significantly lower yields under the panels, with smaller and lighter produce, though cabbages grown under a gap between panels were not significantly different from the control.</p>
         <p>As at the Tanzania site, combining crop production with electricity generation enhanced land productivity across all growing seasons. A rainwater harvesting system channelling panel runoff into storage tanks supplemented the existing irrigation supply.</p>
       </div>
     </div>
@@ -644,7 +670,16 @@ const sites = [
 ];
 const siteGroup = L.layerGroup();
 sites.forEach(s => {
-  const marker = L.marker([s.lt,s.ln],{icon:L.divIcon({className:'site-label',html:'▲ '+s.n,iconSize:[140,14],iconAnchor:[-10,7]}),pane:'labelsPane'}).addTo(siteGroup);
+  // Clickable label with hover hint
+  const marker = L.marker([s.lt, s.ln], {
+    icon: L.divIcon({
+      className: 'site-label',
+      html: '▲ ' + s.n + '<span class="site-hint">Click for trial results</span>',
+      iconSize: [160, 28],
+      iconAnchor: [-10, 7]
+    }),
+    pane: 'labelsPane'
+  }).addTo(siteGroup);
   marker.on('click', () => { document.getElementById(s.popup).classList.add('visible'); });
 });
 siteGroup.addTo(map);
