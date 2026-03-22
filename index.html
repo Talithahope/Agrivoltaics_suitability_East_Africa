@@ -519,7 +519,9 @@ topoScript.onload = () => {
     .then(r => r.json())
     .then(topo => {
       const allCountries = topojson.feature(topo, topo.objects.countries);
-      const studyFeatures = allCountries.features.filter(f => STUDY_CODES.has(f.id));
+      const studyFeatures = allCountries.features.filter(f =>
+        STUDY_CODES.has(f.id) || (f.properties && f.properties.name === 'Somaliland')
+      );
       borderLayer = L.geoJSON(studyFeatures, {
         style: function() {
           return {
